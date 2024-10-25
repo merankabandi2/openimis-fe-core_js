@@ -3,7 +3,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from "react-intl";
 import { Fab, Grid, Paper, IconButton, Typography, Divider, Tooltip } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import SaveIcon from "@material-ui/icons/SaveAlt";
+import SaveIcon from "@material-ui/icons/Save";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import FormattedMessage from "./FormattedMessage";
 import Contributions from "./Contributions";
