@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const LOGIN_PAGE_CONTRIBUTION_KEY = "core.LoginPage";
+const LOGIN_PAGE_MPASS_CONTRIBUTION_KEY = "workerVoucher.MPassLoginButton";
 
 const LoginPage = ({ logo }) => {
   const classes = useStyles();
@@ -41,7 +42,6 @@ const LoginPage = ({ logo }) => {
   const { formatMessage } = useTranslations("core.LoginPage", modulesManager);
   const [credentials, setCredentials] = useState({});
   const [serverResponse, setServerResponse] = useState({ loginStatus: "", message: null });
-  const [hasMPassError, setMPassError] = useState(false);  
   const auth = useAuthentication();
   const [isAuthenticating, setAuthenticating] = useState(false);
   const showMPassProvider = modulesManager.getConf("fe-core", "LoginPage.showMPassProvider", false);
@@ -148,11 +148,7 @@ const LoginPage = ({ logo }) => {
                           {formatMessage("loginCaption")}
                         </Typography>
                       </Box>
-                      <Tooltip title={formatMessage("loginWithMPass")}>
-                        <Button fullWidth type="submit" onClick={redirectToMPassLogin}>
-                          <MPassLogo />
-                        </Button>
-                      </Tooltip>
+                      <Contributions contributionKey={LOGIN_PAGE_MPASS_CONTRIBUTION_KEY} onClick={redirectToMPassLogin} />
                       <Box display="flex" alignItems="center" mt={4} mb={2}>
                         <Divider style={{ flex: 1 }} />
                         <Link
@@ -169,11 +165,6 @@ const LoginPage = ({ logo }) => {
                         <Divider style={{ flex: 1 }} />
                       </Box>
                     </Grid>
-                    {hasMPassError && (
-                      <Grid item>
-                        <Box color="error.main">{formatMessage("authMPassError")}</Box>
-                      </Grid>
-                    )}
                   </>
                 ) : (
                   <>
