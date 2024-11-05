@@ -40,6 +40,7 @@ function SearcherExport(props) {
     label = null,
     selectWithCheckbox,
     downloadWithIconButton,
+    displayClearAllColsButton,
   } = props;
 
   const [exportStatus, setExport] = useState(0);
@@ -114,6 +115,7 @@ function SearcherExport(props) {
           exportFileFormats={exportFileFormats}
           chooseFileFormat={chooseFileFormat}
           chooseExportableColumns={chooseExportableColumns}
+          displayClearAllColsButton={displayClearAllColsButton}
         />
       )}
 
