@@ -197,7 +197,8 @@ class Form extends Component {
                   {...others}
                   edited={this.props.edited}
                   edited_id={this.props.edited_id}
-                  save={this.props.save}
+                  save={this.save}
+                  isSaving={this.state.saving}
                   canSave={this.props.canSave}
                   onEditedChanged={this.onEditedChanged}
                 />
