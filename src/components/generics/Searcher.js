@@ -28,6 +28,7 @@ import ProgressOrError from "./ProgressOrError";
 import SearcherExport from "./SearcherExport";
 import SearcherPane from "./SearcherPane";
 import Table from "./Table";
+import InfoButton from "./InfoButton";
 
 const styles = (theme) => ({
   root: {
@@ -54,6 +55,12 @@ const styles = (theme) => ({
   tableContainer: {
     ...theme.table.container,
     boxShadow: theme.shadows[2],
+  },
+  infoSection: {
+    display: 'flex',
+    justifyContent: 'start',
+    alignItems: 'center',
+    gap: theme.spacing(1),
   },
 });
 
@@ -111,6 +118,7 @@ class SelectionMenu extends Component {
             exportFileFormat={this.props.exportFileFormat}
             setExportFileFormat={this.props.setExportFileFormat}
             downloadWithIconButton={this.props.downloadWithIconButton}
+            displayClearAllColsButton={this.props.displayClearAllColsButton}
           />
         )}
         {!!contributionKey && (
@@ -157,6 +165,7 @@ class SelectionMenu extends Component {
               chooseFileFormat={this.props.chooseFileFormat}
               exportFileFormats={this.props.exportFileFormats}
               downloadWithIconButton={this.props.downloadWithIconButton}
+              displayClearAllColsButton={this.props.displayClearAllColsButton}
             />
           )}
           {!!contributionKey && (
@@ -496,6 +505,8 @@ class Searcher extends Component {
       enableActionButtons = false,
       searcherActions = [],
       downloadWithIconButton = false,
+      displayClearAllColsButton,
+      infoButtonContent = '',
     } = this.props;
     return (
       <Fragment>
@@ -555,7 +566,12 @@ class Searcher extends Component {
               <Fragment>
                 <Grid container item alignItems="center" xs={this.isWorker ? 7 : 8} className={classes.paperHeader}>
                   <Grid item xs={8} className={classes.paperHeaderTitle}>
-                    {!fetchingItems ? tableTitle : formatMessage(intl, "core", "table.resultsLoading")}
+                    <div className={classes.infoSection}>
+                      {infoButtonContent && <InfoButton content={infoButtonContent} />}
+                      <Grid item>
+                        {!fetchingItems ? tableTitle : formatMessage(intl, "core", "table.resultsLoading")}
+                      </Grid>
+                    </div>
                   </Grid>
                   <Grid item xs={4} className={classes.paperHeaderMessage}>
                     <SelectionPane
@@ -594,6 +610,7 @@ class Searcher extends Component {
                         exportFileFormat={exportFileFormat}
                         setExportFileFormat={setExportFileFormat}
                         downloadWithIconButton={downloadWithIconButton}
+                        displayClearAllColsButton={displayClearAllColsButton}
                       />
                     </Grid>
                   )}

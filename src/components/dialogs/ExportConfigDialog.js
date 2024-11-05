@@ -37,6 +37,7 @@ const ExportConfigDialog = ({
   setExportFileFormat,
   exportFileFormats,
   chooseFileFormat,
+  displayClearAllColsButton = true,
 }) => {
   const modulesManager = useModulesManager();
   const { formatMessage } = useTranslations(module, modulesManager);
@@ -130,7 +131,7 @@ const ExportConfigDialog = ({
       </DialogContent>
       <Divider />
       <DialogActions>
-        {showColumns && (
+        {displayClearAllColsButton && showColumns && (
           <Button onClick={() => fillCheckboxesWithValue(false)} className={classes.secondaryButton}>
             {formatMessage("exportConfigDialog.clearAllColsButton")}
           </Button>
