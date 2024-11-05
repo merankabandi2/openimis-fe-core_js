@@ -75,8 +75,6 @@ class Form extends Component {
       ...others
     } = this.props;
 
-    console.log(this.state.saving);
-
     const defaultTooltips = [
       {
         condition: !this.state.dirty && !!add && !save,
