@@ -23,7 +23,6 @@ import FormattedMessage from "./FormattedMessage";
 import ProgressOrError from "./ProgressOrError";
 import withModulesManager from "../../helpers/modules";
 import { formatMessage, formatMessageWithValues } from "../../helpers/i18n";
-import { parseData } from "../../helpers/api";
 
 const styles = (theme) => ({
   table: theme.table,
@@ -133,19 +132,17 @@ class Table extends Component {
   };
 
   selectAll = async () => {
-    const { withSelection, getAllItems, onChangeSelection } = this.props;
+    const { withSelection, onChangeSelection, items } = this.props;
     const { selection } = this.state;
-  
+
     if (!withSelection) return;
-  
+
     let newSelection = {};
 
     if (!Object.keys(selection).length) {
-      const itemsData = await getAllItems();
-      const items = parseData(itemsData.payload.data.worker);
       newSelection = this._atom(items);
     }
-  
+
     this.setState({ selection: newSelection }, () => {
       onChangeSelection?.(Object.values(this.state.selection));
     });
