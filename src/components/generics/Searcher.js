@@ -501,7 +501,6 @@ class Searcher extends Component {
       exportFileFormat,
       setExportFileFormat,
       selectWithCheckbox = false,
-      getAllItems,
       enableActionButtons = false,
       searcherActions = [],
       downloadWithIconButton = false,
@@ -621,7 +620,6 @@ class Searcher extends Component {
                     size="small"
                     module={module}
                     selectWithCheckbox={selectWithCheckbox}
-                    getAllItems={getAllItems}
                     fetching={fetchingItems}
                     preHeaders={!!preHeaders && preHeaders(this.state.selection)}
                     headers={headers(this.state.filters)}

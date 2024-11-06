@@ -133,19 +133,17 @@ class Table extends Component {
   };
 
   selectAll = async () => {
-    const { withSelection, getAllItems, onChangeSelection } = this.props;
+    const { withSelection, onChangeSelection, items } = this.props;
     const { selection } = this.state;
-  
+
     if (!withSelection) return;
-  
+
     let newSelection = {};
 
     if (!Object.keys(selection).length) {
-      const itemsData = await getAllItems();
-      const items = parseData(itemsData.payload.data.worker);
       newSelection = this._atom(items);
     }
-  
+
     this.setState({ selection: newSelection }, () => {
       onChangeSelection?.(Object.values(this.state.selection));
     });
