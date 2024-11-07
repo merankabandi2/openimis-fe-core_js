@@ -132,6 +132,7 @@ export const DEFAULT = {
   IS_WORKER: false,
   ENABLE_PUBLIC_PAGE: false,
   SHOW_JOURNAL_SIDEBAR: true,
+  DISABLED_VISIBILITY_BOOST: false,
 }
 
 export const EXPORT_FILE_FORMATS = {

@@ -1,12 +1,15 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import clsx from "clsx";
 import moment from "moment";
-import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from "react-intl";
+
+import { withTheme, withStyles } from "@material-ui/core/styles";
 import { FormControl } from "@material-ui/core";
 import { DatePicker as MUIDatePicker } from "@material-ui/pickers";
 import { formatMessage, toISODate } from "../helpers/i18n";
 import { withModulesManager, withHistory } from "@openimis/fe-core";
+import { DEFAULT } from "../constants";
 
 import DatePicker from "react-multi-date-picker";
 import nepali from "../calendars/NepalCalendar";
@@ -20,6 +23,17 @@ const styles = (theme) => ({
   label: {
     color: theme.palette.primary.main,
   },
+  disabledStateVisibilityBoost: {
+    "& .MuiFormLabel-root.Mui-disabled": {
+      color: "#181716",
+    },
+    "& .MuiInputBase-input.Mui-disabled": {
+      color: "#5E5B50",
+    },
+    "& .MuiInput-underline:before": {
+      borderBottom: `1px dotted #5E5B50`,
+    },
+  },
 });
 
 function fromISODate(s) {
@@ -28,6 +42,15 @@ function fromISODate(s) {
 }
 
 class openIMISDatePicker extends Component {
+  constructor(props) {
+    super(props);
+    this.disabledVisibilityBoost = props.modulesManager.getConf(
+      "fe-core",
+      "Input.disabledVisibilityBoost",
+      DEFAULT.DISABLED_VISIBILITY_BOOST,
+    );
+  }
+
   state = {
     value: null,
   };
@@ -143,6 +166,9 @@ class openIMISDatePicker extends Component {
             format={format}
             disabled={readOnly}
             required={required}
+            className={clsx({
+              [classes.disabledStateVisibilityBoost]: this.disabledVisibilityBoost && readOnly,
+            })}
             clearable
             value={this.state.value}
             InputLabelProps={{
