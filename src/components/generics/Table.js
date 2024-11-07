@@ -418,6 +418,8 @@ class Table extends Component {
                   rowsPerPageOptions={rowsPerPageOptions}
                   onRowsPerPageChange={(e) => onChangeRowsPerPage(e.target.value)}
                   onPageChange={onChangePage}
+                  nextIconButtonText={formatMessage(intl, "core", "Table.nextPage")}
+                  backIconButtonText={formatMessage(intl, "core", "Table.previousPage")}
                 />
               </TableRow>
             </TableFooter>

@@ -151,5 +151,7 @@
   "core.LoginPage.backButton": "Back",
   "core.LoginPage.loginCaption": "Authentication by",
   "core.LoginPage.howToUse": "User guide",
-  "core.InfoButton.tooltip": "More Information"
+  "core.InfoButton.tooltip": "More Information",
+  "core.Table.nextPage": "Next page",
+  "core.Table.previousPage": "Previous page"
 }
