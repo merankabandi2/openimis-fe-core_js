@@ -69,6 +69,7 @@ class SelectInput extends Component {
       readOnly = false,
       required = false,
       placeholder,
+      title = '',
     } = this.props;
     if (!options) return null;
     let valueStr = null;
@@ -87,6 +88,7 @@ class SelectInput extends Component {
               inputProps={{
                 name: name,
                 id: `${_.uuid()}-input`,
+                title: title,
               }}
               value={!!value ? JSON.stringify(value) : null}
               onChange={this._onChange}
@@ -118,6 +120,7 @@ class SelectInput extends Component {
             module={module}
             value={valueStr}
             readOnly={true}
+            title={title}
           />
         )}
       </Fragment>
