@@ -32,7 +32,7 @@ import { fetchMutation, fetchHistoricalMutations } from "../actions";
 import withModulesManager from "../helpers/modules";
 import moment from "moment";
 import _ from "lodash";
-import { CLAIM_STATS_ORDER, GLOBAL_UNDERSCORE, WHITE_SPACE } from "../constants";
+import { CLAIM_STATS_ORDER, GLOBAL_UNDERSCORE, REQUEST_LIMIT, WHITE_SPACE } from "../constants";
 
 const styles = (theme) => ({
   toolbar: {
@@ -258,6 +258,7 @@ class JournalDrawer extends Component {
       displayedMutations: [],
       messagesAnchor: null,
       expanded: false,
+      limitMutationLogsQuery: props.modulesManager.getConf("fe-core", "journalDrawer.limitMutationLogsQuery", false)
     };
   }
 
@@ -291,7 +292,32 @@ class JournalDrawer extends Component {
   checkProcessing = () => {
     var clientMutationIds = this.state.displayedMutations.filter((m) => m.status === 0).map((m) => m.clientMutationId);
     //TODO: change for a "fetchMutationS(ids)"  > requires id_In backend implementation
-    clientMutationIds.forEach((id) => this.props.fetchMutation(id));
+    if(this.state.limitMutationLogsQuery){
+      var arrayMutations = localStorage.getItem('arrayMutations');
+      var mutationLogs = {};
+      if(arrayMutations==null){
+        arrayMutations = [];
+        clientMutationIds.map((id)=>{
+          arrayMutations.push({
+            id: id,
+            count: 0
+          });
+        });
+        mutationLogs.arrayMutations = arrayMutations;
+        localStorage.setItem('arrayMutations', JSON.stringify(mutationLogs));
+      }else{
+        let parsedJson = JSON.parse(arrayMutations);
+        parsedJson.arrayMutations.map((obj)=>{
+          if(obj.count < REQUEST_LIMIT){
+            this.props.fetchMutation(obj.id);
+          }
+          obj.count = obj.count + 1;
+        });
+        localStorage.setItem('arrayMutations', JSON.stringify(parsedJson));
+      }
+    }else{
+      clientMutationIds.forEach((id) => this.props.fetchMutation(id));
+    }
   };
   more = (e) => {
     this.props.fetchHistoricalMutations(this.state.pageSize, this.state.afterCursor);
