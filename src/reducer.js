@@ -39,6 +39,19 @@ function reducer(
     errorRoleRights: null,
     isInitialized: false,
     authError: null,
+    paginationPage: 0,
+    afterCursor: null,
+    beforeCursor: null,
+    module: null,
+    fetchingCustomFilters: false,
+    errorCustomFilters: null,
+    fetchedCustomFilters: false,
+    customFilters: [],
+    isExportConfigDialogOpen: false,
+    fetchingLanguages: false,
+    fetchedLanguages: false,
+    languages: [],
+    errorLanguages: null,
   },
   action,
 ) {
@@ -65,6 +78,16 @@ function reducer(
       };
       delete s.confirm;
       return s;
+    case "CORE_OPEN_EXPORT_CONFIG_DIALOG":
+      return {
+        ...state,
+        isExportConfigDialogOpen: true,
+      };
+    case "CORE_CLOSE_EXPORT_CONFIG_DIALOG":
+      return {
+        ...state,
+        isExportConfigDialogOpen: false,
+      };
     case "CORE_USERS_CURRENT_USER_RESP":
       return {
         ...state,
@@ -79,12 +102,43 @@ function reducer(
           detail: !!action.payload.response ? action.payload.response.detail : null,
         },
       };
+    case "PASSWORD_POLICY_FIELDS_REQ":
+      return {
+        ...state,
+        fetchingPasswordPolicy: true,
+        fetchedPasswordPolicy: false,
+        passwordPolicy: null,
+        errorPasswordPolicy: null,
+      };
+    case "PASSWORD_POLICY_FIELDS_RESP":
+      return {
+        ...state,
+        fetchingPasswordPolicy: false,
+        fetchedPasswordPolicy: true,
+        passwordPolicy: action.payload.data.passwordPolicy,
+        errorPasswordPolicy: formatGraphQLError(action.payload),
+      };
+    case "PASSWORD_POLICY_FIELDS_ERR":
+      return {
+        ...state,
+        fetchingPasswordPolicy: false,
+        errorPasswordPolicy: formatServerError(action.payload),
+      };
     case "CORE_CACHE_FILTER":
       var filtersCache = { ...state.filtersCache, ...action.payload };
       return {
         ...state,
         filtersCache,
       };
+    case "CORE_CACHE_FILTER_RESET":
+      const key = action.payload;
+      const filtersCacheCopy = { ...state.filtersCache };
+      delete filtersCacheCopy[key];
+      return {
+        ...state,
+        filtersCache: filtersCacheCopy,
+      };
+
     case "CORE_MUTATION_ADD":
       return {
         ...state,
@@ -245,6 +299,88 @@ function reducer(
         fetchingRoleRights: false,
         errorRoleRights: formatServerError(action.payload),
       };
+    case "CORE_ROLE_NAME_VALIDATION_FIELDS_REQ":
+      return {
+        ...state,
+        validationFields: {
+          ...state.validationFields,
+          roleName: {
+            isValidating: true,
+            isValid: false,
+            validationError: null,
+          },
+        },
+      };
+    case "CORE_ROLE_NAME_VALIDATION_FIELDS_RESP":
+      return {
+        ...state,
+        validationFields: {
+          ...state.validationFields,
+          roleName: {
+            isValidating: false,
+            isValid: action.payload?.data.isValid,
+            validationError: formatGraphQLError(action.payload),
+          },
+        },
+      };
+    case "CORE_ROLE_NAME_VALIDATION_FIELDS_ERR":
+      return {
+        ...state,
+        validationFields: {
+          ...state.validationFields,
+          roleName: {
+            isValidating: false,
+            isValid: false,
+            validationError: formatServerError(action.payload),
+          },
+        },
+      };
+    case "CORE_ROLE_NAME_VALIDATION_FIELDS_CLEAR":
+      return {
+        ...state,
+        validationFields: {
+          ...state.validationFields,
+          roleName: {
+            isValidating: true,
+            isValid: false,
+            validationError: null,
+          },
+        },
+      };
+    case "CORE_ROLE_NAME_VALIDATION_FIELDS_SET_VALID":
+      return {
+        ...state,
+        validationFields: {
+          ...state.validationFields,
+          roleName: {
+            isValidating: false,
+            isValid: true,
+            validationError: null,
+          },
+        },
+      };
+    case "FETCH_CUSTOM_FILTER_REQ":
+      return {
+        ...state,
+        fetchingCustomFilters: true,
+        fetchedCustomFilters: false,
+        customFilters: [],
+        errorCustomFilters: null,
+      };
+    case "FETCH_CUSTOM_FILTER_RESP":
+      return {
+        ...state,
+        fetchingCustomFilters: false,
+        fetchedCustomFilters: true,
+        customFilters: !!action.payload.data.customFilters ? action.payload.data.customFilters.possibleFilters : [],
+        errorCustomFilters: formatGraphQLError(action.payload),
+      };
+    case "FETCH_CUSTOM_FILTER_ERR":
+      return {
+        ...state,
+        fetchingCustomFilters: false,
+        errorCustomFilters: formatServerError(action.payload),
+      };
     case "CORE_ROLE_MUTATION_REQ":
       return dispatchMutationReq(state, action);
     case "CORE_ROLE_MUTATION_ERR":
@@ -276,7 +412,6 @@ function reducer(
         authError: formatServerError(action.payload),
       };
     }
-
     case "CORE_INITIALIZED":
       return {
         ...state,
@@ -286,8 +421,40 @@ function reducer(
       return {
         ...state,
         user: null,
+        mutations: [],
+        filtersCache: {},
+        roles: [],
+        rolesPageInfo: {},
+        rolesTotalCount: 0,
+        modulePermissions: [],
+        role: null,
+        roleRights: [],
       };
-
+    case "CORE_PAGINATION_PAGE":
+      return {
+        ...state,
+        savedPagination: {
+          paginationPage: action.payload?.page,
+          afterCursor: action.payload?.afterCursor,
+          beforeCursor: action.payload?.beforeCursor,
+          module: action.payload?.module,
+        },
+      };
+    case "CORE_PAGINATION_PAGE_CLEAR":
+      return {
+        ...state,
+        savedPagination: {
+          paginationPage: 0,
+          afterCursor: null,
+          beforeCursor: null,
+          module: null,
+        },
+      };
+    case "CORE_CALENDAR_TYPE_TOGGLE":
+      return {
+        ...state,
+        isSecondaryCalendarEnabled: action.payload.isSecondaryCalendarEnabled,
+      };
     default:
       return state;
   }

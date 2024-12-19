@@ -250,7 +250,15 @@ class AutoSuggestion extends Component {
   };
 
   renderSelect = () => {
-    const { module, withNull, nullLabel, label, required = false, getSuggestionValue } = this.props;
+    const {
+      module,
+      withNull,
+      nullLabel,
+      label,
+      required = false,
+      getSuggestionValue,
+      title,
+    } = this.props;
     const { suggestions, selected } = this.state;
     var options = suggestions.map((r) => ({ value: r, label: getSuggestionValue(r) }));
     if (withNull) {
@@ -264,12 +272,21 @@ class AutoSuggestion extends Component {
         value={selected}
         onChange={this._onOptionSelected}
         required={required}
+        title={title}
       />
     );
   };
 
   renderAutoselect = () => {
-    const { classes, label, disabled = false, required = false, placeholder, getSuggestionValue } = this.props;
+    const {
+      classes,
+      label,
+      disabled = false,
+      required = false,
+      placeholder,
+      getSuggestionValue,
+      title = '',
+    } = this.props;
     const { suggestions, value } = this.state;
     const inputProps = {
       className: classes.suggestionInputField,
@@ -280,6 +297,7 @@ class AutoSuggestion extends Component {
       disabled,
       onChange: this._onAutoselectChange,
       required,
+      title,
     };
     return (
       <Autosuggest
@@ -304,10 +322,25 @@ class AutoSuggestion extends Component {
   };
 
   render() {
-    const { classes, label, readOnly = false, selectThreshold = null } = this.props;
+    const {
+      classes,
+      label,
+      readOnly = false,
+      selectThreshold = null,
+      title = '',
+    } = this.props;
     const { value, suggestions } = this.state;
+
     if (!!readOnly) {
-      return <TextField label={label} className={classes.textField} disabled value={value} />;
+      return (
+        <TextField
+          label={label}
+          className={classes.textField}
+          disabled
+          value={value}
+          title={title}
+        />
+      );
     }
     if (
       !value &&

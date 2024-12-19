@@ -19,10 +19,17 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 - `JournalDrawer`: side bar in which mutation journal is displayed
 - `AlertDialog`: pop up (modal) dialog to display an alert message (one 'ok' button)
 - `ConfirmDialog`: pop up (modal) dialog to display a confirmation message (with 'cancel' / 'confirm' buttons)
+- `SelectDialog`: pop up (modal) dialog to display a message and take an action between two options (yes/no, do/do not, continue/go back) - with editable (through the props) button labels, message content and dialog title, without using Redux store and actions
 - `FataError`: page for non-recoverable backend access errors
 - `Help`: main menu entry for Help (link to manual)
 - `Logout`: main menu entry to logout
 - `KeepLegacyAlive`: component to be registered in core.Boot contribution to keep legacy openIMIS session alive while interacting with new openIMIS pages
+- `ErrorPage`: displays error messages with status, title, and optional logo. Includes navigation button to the homepage.
+- `PermissionCheck`: controls access to content based on user rights (403 error). Renders content if user has required rights, otherwise shows `ForbiddenPage`.
+- `ForbiddenPage`: shown when a user lacks permission to access a specific page or resource. Displays an access denied message.
+- `NotFoundPage`: appears when a user visits a non-existent route (404 error). Informs the user that the page is unavailable and suggests navigation option.
+- `InternalServerErrorPage`: displays a message for a 500 Internal Server Error, informing users of a server-side issue in the application.
+ * `LanguageQuickPicker` is a component that allows users to quickly switch between different languages. Available on user's navbar.
 
 ## Generic Components (to be reused along business-focused components)
 
@@ -36,14 +43,21 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 - `Contributions`: generic component to open business components for contributions
 - `ControlledField`: field that is skipped based on module configuration
 - `TextInput`,`NumberInput`, `AmountInput` & `SelectInput`: generic input components for the various data types
+- `ValidatedTextInput`: generic input component which checks the uniqueness of entered data and gives the appropriate information about it
 - `FieldLabel`: formatting a label in a form
 - `FormattedMessage`: translated text (module/key)
 - `ProgressOrError`: display progress during component's asynchronous calls... and hide or diaply error message when asynchronous call returns
 - `Searcher`: generic searcher page (with criteria form and result table)
+- `SearcherActionButton`: represents an action button used within a search interface.
 - `Form`: generic form. Manage dirty state, displays add/save button,...
-- `Table`: generic table. Headers (with -sort-actions), rows,...
+- `Table`: generic table. Headers (with -sort-actions), rows, optional setting - showOrdinalNumber that will show column with ordinal number as first column, ...
 
 ## Helpers
+
+### Contexts
+
+- `ToastContext`: This context provides toast notification functionality within the application. It enables you to easily display success, error, warning, or informational messages as toast notifications.
+__To use it__, you need to import `useToast` from `@openimis/fe-core` and use one of the provided functions (e.g., `showSuccess`, `showError`, `showWarning`, `showInfo`) to trigger different types of toast notifications.
 
 ### redux actions helpers
 
@@ -79,6 +93,11 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 
   Note: depends on the selected calendar (Gregorian vs. Nepali)
 
+### JSON handler
+
+- `createFieldsBasedOnJSON`: Creates additional fields from a JSON string and returns an array of field objects.
+- `renderInputComponent`: Renders the appropriate input component based on the field type and value.
+
 ### navigation
 
 - `withHistory`: helper to inject history to any openIMIS component (allow navigation)
@@ -94,6 +113,8 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 - `core.AppBar`: ability to add entries in the AppBar (known usage: insuree Enquiry component)
 - `core.MainMenu`: ability to add main menu entries from modules (known usage: claim, insuree,...)
 - `core.Router`: ability to register routes in client-side routing (known usage: claim, insuree,...)
+- `core.UnauthenticatedRouter`: ability to register routes in client-side routing for pages that don't require user authentication
+- `core.LoginPage`: ability to add components to the menu login page
 
 ## Contributions
 
@@ -109,6 +130,7 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 - `core.YearPicker`, pick a year within a range
 - `core.MonthPicker`, contant-based month picker. Translation keys `month.null`, `month.1`,...
 - `core.LanguagePicker`, pick from available languages
+- `core.WarningBox`, simple alert component to show warnings or messages, with options to customize its look and size.
 
 ## Dispatched Redux Actions
 
@@ -127,17 +149,31 @@ It is dedicated to be deployed as a module of [openimis-fe_js](https://github.co
 - `CORE_UPDATE_ROLE_RESP`: receive a result of update Role mutation
 - `CORE_DUPLICATE_ROLE_RESP`: receive a result of duplicate Role mutation
 - `CORE_DELETE_ROLE_RESP`: receive a result of delete Role mutation
+- `CORE_CALENDAR_TYPE_TOGGLE`: set calendar switch status between gregorian and other calendar
 
 ## Other Modules Listened Redux Actions
 
 None
 
 ## Configurations Options
-
-- `datePicker`: the concrete date picker to publish as `core.DatePicker` component ("ad"= Gregorian DatePicker, "ne"= Neplali calendar date picker )
+- `core.PublicPage`: This contributions point serves as the Public Page for the OpenIMIS App. To enable its use, it must be exposed as a **core.PublicPage** contribution point. Additionally, the database configuration variable **App.enablePublicPage** must be set to `true`.
+- `showJournalSidebar`: This determines whether to render the Journal sidebar or not. __IMPORTANT__:  The Journal provides crucial information about the state of mutations, including whether they succeeded or failed. If you choose to hide it, you must ensure the user is informed of the mutation outcome - consider using toast notifications. **This configuration only hides the Journal. It does not automatically add toast notifications out of the box.**.
+- `datePicker`: the concrete date picker to publish as `core.DatePicker` component ("ad"= Gregorian DatePicker, "ne"= Nepali calendar date picker )
 - `useDynPermalinks`: use ?dyn=<Base64-URL> when opening in new tab (prevent sending client-side routes to server while) (Default: false)
 - `core.JournalDrawer.pollInterval`: poll interval (in ms) to check for mutation status once submitted (Default: 2000)
 - `core.KeepLegacyAlive.pollInterval`: poll interval (in ms) to send the ping to legacy openIMIS (to prevent session timeout). (Default: 300000 = 5')
 - `journalDrawer.pageSize`: page size when loading (historical) mutations (Default: `5`)
 - `AutoSuggestion.limitDisplay`: threshold to limit the number of items in the auto suggestions (adding 'more options...' message), default: 10
 - `AmountInput.currencyPosition`: position of the currency for the AmountInput. Choices are `start` and `end` (default: `start`)
+- `menuLeft`: position menu in the Drawer component on the left site of the application
+- `calendarSwitch`: enable calendar switcher toggle on the navbar of the webpage. Currently supports nepali calendar. Default false.
+- `secondCalendarFormatting`: formatting options for second calendar (both picker and display), default: "DD-MM-YYYY"
+- `secondCalendarFormattingLang`: formatting language for second calendar (when displayed as saved data, not in pickers), default: "en"
+- `redirectToCoreMISConfluenceUrl`: clicking on questionmark icon will take you to coreMIS confluence page, default openIMIS manual
+- `App.economicUnitConfig`:
+  In the specified configuration, when the parameter is set to **true**, it necessitates that users are associated with an Economic Unit. If a user lacks this association, a modal will be displayed to prompt them to establish it. Until the user is linked to a unit, their only authorized action is to log out. The default configuration is **false**.
+- `LogoutButton.showMPassProvider`: when activated, routes the user to the saml logout page for secure session termination
+- `LoginPage.showMPassProvider`: redirects users to the saml login page, facilitating access to mPass-protected resources
+- `secondCalendarType`: type of secondary calendar picker (if enabled), default "nepali"
+- `secondCalendarLocale`: locale for secondary calendar picker (if enabled), default "nepali_en",
+- `Input.disabledVisibilityBoost`: This setting enhances the visibility of disabled input fields (e.g., text/number inputs, date pickers). When set to __true__, the label color changes to `#181716`, and the input value color to `#5E5B50`. The default is __false__.

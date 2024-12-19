@@ -3,7 +3,7 @@ import { withTheme, withStyles } from "@material-ui/core/styles";
 import { injectIntl } from "react-intl";
 import { Fab, Grid, Paper, IconButton, Typography, Divider, Tooltip } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import SaveIcon from "@material-ui/icons/SaveAlt";
+import SaveIcon from "@material-ui/icons/Save";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import FormattedMessage from "./FormattedMessage";
 import Contributions from "./Contributions";
@@ -15,7 +15,8 @@ const styles = (theme) => ({
   paper: theme.paper.paper,
   paperHeader: theme.paper.header,
   paperHeaderAction: theme.paper.action,
-  fab: theme.fab,
+  tooltipContainer: theme.tooltipContainer,
+  flexTooltip: theme.flexTooltip,
 });
 
 class Form extends Component {
@@ -69,8 +70,55 @@ class Form extends Component {
       headPanelContributionsKey,
       Panels,
       contributedPanelsKey = null,
+      additionalTooltips = null,
+      enableActionButtons = false,
       ...others
     } = this.props;
+
+    const defaultTooltips = [
+      {
+        condition: !this.state.dirty && !!add && !save,
+        content: (
+          <span>
+            <Fab color="primary" onClick={add}>
+              <AddIcon />
+            </Fab>
+          </span>
+        ),
+        tooltip: addTooltip || formatMessage(this.props.intl, module, "addTooltip"),
+      },
+      {
+        condition: (!!this.state.dirty || !!openDirty) && !!save,
+        content: (
+          <span>
+            <Fab
+              color="primary"
+              disabled={!!this.state.saving || (!!canSave && !canSave())}
+              onClick={(e) => this.save(this.props.edited)}
+            >
+              <SaveIcon />
+            </Fab>
+          </span>
+        ),
+        tooltip: saveTooltip || formatMessage(this.props.intl, module, "saveTooltip"),
+      },
+      {
+        condition: (!!this.state.dirty || !!openDirty) && !!fab,
+        content: (
+          <span>
+            <Fab color="primary" onClick={(e) => fabAction(this.props.edited)}>
+              {fab}
+            </Fab>
+          </span>
+        ),
+        tooltip: fabTooltip,
+      },
+    ]
+
+    const allTooltips = [...(additionalTooltips || []), ...defaultTooltips];
+
+    const filteredTooltips = allTooltips.filter(tooltip => tooltip.condition);
+
     return (
       <Fragment>
         <form noValidate autoComplete="off">
@@ -105,7 +153,13 @@ class Form extends Component {
                           return (
                             <Grid item key={`form-action-${idx}`} className={classes.paperHeaderAction}>
                               {withTooltip(
-                                !!a.button ? a.button : <IconButton onClick={a.doIt}>{a.icon}</IconButton>,
+                                !!a.button ? (
+                                  a.button
+                                ) : (
+                                  <IconButton onClick={a.doIt} disabled={a?.disabled}>
+                                    {a.icon}
+                                  </IconButton>
+                                ),
                                 a.tooltip,
                               )}
                             </Grid>
@@ -140,9 +194,12 @@ class Form extends Component {
             Panels.map((P, idx) => (
               <Grid key={`form_panel_${idx}`} item xs={12}>
                 <P
+                  {...others}
                   edited={this.props.edited}
                   edited_id={this.props.edited_id}
-                  {...others}
+                  save={this.save}
+                  isSaving={this.state.saving}
+                  canSave={this.props.canSave}
                   onEditedChanged={this.onEditedChanged}
                 />
               </Grid>
@@ -155,40 +212,15 @@ class Form extends Component {
             />
           )}
         </form>
-        {!this.state.dirty &&
-          !!add &&
-          withTooltip(
-            <div className={classes.fab}>
-              <Fab color="primary" onClick={add}>
-                <AddIcon />
-              </Fab>
-            </div>,
-            addTooltip || formatMessage(this.props.intl, module, "addTooltip"),
-          )}
-        {(!!this.state.dirty || !!openDirty) &&
-          !!save &&
-          withTooltip(
-            <div className={classes.fab}>
-              <Fab
-                color="primary"
-                disabled={!!this.state.saving || (!!canSave && !canSave())}
-                onClick={(e) => this.save(this.props.edited)}
-              >
-                <SaveIcon />
-              </Fab>
-            </div>,
-            saveTooltip || formatMessage(this.props.intl, module, "saveTooltip"),
-          )}
-        {!this.state.dirty &&
-          !!fab &&
-          withTooltip(
-            <div className={classes.fab}>
-              <Fab color="primary" onClick={(e) => fabAction(this.props.edited)}>
-                {fab}
-              </Fab>
-            </div>,
-            fabTooltip,
-          )}
+        {!enableActionButtons && (
+          <div className={classes.tooltipContainer}>
+            {filteredTooltips.map((item, index) => (
+              <div className={classes.flexTooltip} key={index}>
+                {withTooltip(item.content, item.tooltip, index === 0 ? "top" : "left")}
+              </div>
+            ))}
+          </div>
+        )}
       </Fragment>
     );
   }

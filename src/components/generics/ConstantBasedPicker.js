@@ -46,7 +46,7 @@ class ConstantBasedPicker extends Component {
       required = false,
     } = this.props;
     const { value } = this.state;
-    if (!withNull && value === null) return null;
+    if (!withNull && value === null && !!!constants) return null;
     const options = withNull
       ? [
           {
@@ -66,7 +66,8 @@ class ConstantBasedPicker extends Component {
     return (
       <SelectInput
         module={module}
-        label={!!withLabel && label}
+        label={!!withLabel && label ? label : " "}
+        withLabel={withLabel}
         options={options}
         name={name}
         value={value}

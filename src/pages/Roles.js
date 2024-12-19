@@ -1,5 +1,15 @@
 import React, { Component } from "react";
+import { bindActionCreators } from "redux";
+import { connect } from "react-redux";
 import { injectIntl } from "react-intl";
+
+import { Grid, FormControlLabel, Checkbox, Fab, IconButton } from "@material-ui/core";
+import { withTheme, withStyles } from "@material-ui/core/styles";
+import AddIcon from "@material-ui/icons/Add";
+import DeleteIcon from "@material-ui/icons/Delete";
+import EditIcon from "@material-ui/icons/Edit";
+import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
+
 import {
   withModulesManager,
   formatMessage,
@@ -12,12 +22,10 @@ import {
   historyPush,
   coreConfirm,
   journalize,
+  PublishedComponent,
   SelectInput,
+  clearCurrentPaginationPage,
 } from "@openimis/fe-core";
-import { Grid, FormControlLabel, Checkbox, Fab, IconButton } from "@material-ui/core";
-import { withTheme, withStyles } from "@material-ui/core/styles";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
 import { fetchRoles, deleteRole } from "../actions";
 import {
   DEFAULT_PAGE_SIZE,
@@ -30,11 +38,8 @@ import {
   RIGHT_ROLE_DUPLICATE,
   RIGHT_ROLE_DELETE,
   QUERY_STRING_DUPLICATE,
+  MODULE_NAME,
 } from "../constants";
-import AddIcon from "@material-ui/icons/Add";
-import EditIcon from "@material-ui/icons/Edit";
-import SupervisedUserCircleIcon from "@material-ui/icons/SupervisedUserCircle";
-import DeleteIcon from "@material-ui/icons/Delete";
 
 const styles = (theme) => ({
   page: theme.page,
@@ -53,6 +58,11 @@ class RawRoleFilter extends Component {
   _filterValue = (k) => {
     const { filters } = this.props;
     return !!filters[k] ? filters[k].value : null;
+  };
+
+  _filterTextFieldValue = (k) => {
+    const { filters } = this.props;
+    return !!filters[k] ? filters[k].value : "";
   };
 
   _onChangeFilter = (k, v) => {
@@ -75,6 +85,16 @@ class RawRoleFilter extends Component {
     ]);
   };
 
+  onChangeRoleRight = (key, value) => {
+    this.props.onChangeFilters([
+      {
+        id: key,
+        value,
+        filter: `${key}: ${value?.permsValue}`,
+      },
+    ]);
+  };
+
   booleanOptions = () => {
     const options = [null, "true", "false"];
     return [
@@ -93,7 +113,7 @@ class RawRoleFilter extends Component {
           <TextInput
             module="core"
             label="roleManagement.roleName"
-            value={this._filterValue("name")}
+            value={this._filterTextFieldValue("name")}
             onChange={(v) => this._onChangeStringFilter("name", v, CONTAINS_LOOKUP)}
           />
         </Grid>
@@ -113,6 +133,13 @@ class RawRoleFilter extends Component {
             options={this.booleanOptions()}
             value={this._filterValue("isBlocked")}
             onChange={(v) => this._onChangeFilter("isBlocked", v)}
+          />
+        </Grid>
+        <Grid item xs={3} className={classes.item}>
+          <PublishedComponent
+            pubRef="core.AuthorityPicker"
+            value={this._filterValue("roleRight")}
+            onChange={(roleRight) => this.onChangeRoleRight("roleRight", roleRight)}
           />
         </Grid>
         <Grid item xs={3} className={classes.item}>
@@ -163,14 +190,14 @@ class Roles extends Component {
 
   fetch = (params) => this.props.fetchRoles(params);
 
-  headers = () => {
+  headers = (filters) => {
     const { rights } = this.props;
     let result = [
       "roleManagement.roleName",
       "roleManagement.isSystem",
       "roleManagement.isBlocked",
-      "roleManagement.dateValidFrom",
-      "roleManagement.dateValidTo",
+      filters?.showHistory?.value ? "roleManagement.dateValidFrom" : null,
+      filters?.showHistory?.value ? "roleManagement.dateValidTo" : null,
     ];
     [RIGHT_ROLE_UPDATE, RIGHT_ROLE_DUPLICATE, RIGHT_ROLE_DELETE].forEach((right) => {
       if (rights.includes(right)) {
@@ -180,14 +207,27 @@ class Roles extends Component {
     return result;
   };
 
-  itemFormatters = () => {
+  itemFormatters = (filters) => {
     const { intl, rights, modulesManager, language } = this.props;
     const result = [
-      (role) => (language === null ? role.name : (language === LANGUAGE_EN ? role.name : (role.altLanguage === null ? role.name : role.altLanguage))),
+      (role) =>
+        language === null
+          ? role.name
+          : language === LANGUAGE_EN
+          ? role.name
+          : role.altLanguage === null
+          ? role.name
+          : role.altLanguage,
       (role) => (role.isSystem !== null ? <Checkbox checked={!!role.isSystem} disabled /> : ""),
       (role) => (role.isBlocked !== null ? <Checkbox checked={role.isBlocked} disabled /> : ""),
-      (role) => (!!role.validityFrom ? formatDateFromISO(modulesManager, intl, role.validityFrom) : ""),
-      (role) => (!!role.validityTo ? formatDateFromISO(modulesManager, intl, role.validityTo) : ""),
+      (role) =>
+        filters?.showHistory?.value && role.validityFrom
+          ? formatDateFromISO(modulesManager, intl, role.validityFrom)
+          : null,
+      (role) =>
+        filters?.showHistory?.value && role.validityTo
+          ? formatDateFromISO(modulesManager, intl, role.validityTo)
+          : null,
     ];
     if (rights.includes(RIGHT_ROLE_SEARCH) || rights.includes(RIGHT_ROLE_UPDATE)) {
       result.push((role) =>
@@ -246,12 +286,12 @@ class Roles extends Component {
     this.setState({ confirmedAction }, confirm);
   };
 
-  sorts = () => [
+  sorts = (filters) => [
     ["name", true],
     ["isSystem", true],
     ["isBlocked", true],
-    ["validityFrom", true],
-    ["validityTo", true],
+    filters?.showHistory?.value ? ["validityFrom", true] : null,
+    filters?.showHistory?.value ? ["validityTo", true] : null,
   ];
 
   isRowDisabled = (_, role) =>
@@ -260,6 +300,11 @@ class Roles extends Component {
   isRowLocked = (_, role) => this.state.deleted.includes(role.id);
 
   isOnDoubleClickEnabled = (role) => !this.isRowDisabled(_, role);
+
+  componentDidMount = () => {
+    const { module } = this.props;
+    if (module !== MODULE_NAME) this.props.clearCurrentPaginationPage();
+  };
 
   render() {
     const { intl, rights, classes, fetchingRoles, fetchedRoles, errorRoles, roles, rolesPageInfo, rolesTotalCount } =
@@ -317,10 +362,11 @@ const mapStateToProps = (state) => ({
   confirmed: state.core.confirmed,
   submittingMutation: state.core.submittingMutation,
   mutation: state.core.mutation,
+  module: state.core?.savedPagination?.module,
 });
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators({ fetchRoles, deleteRole, coreConfirm, journalize }, dispatch);
+  return bindActionCreators({ fetchRoles, deleteRole, coreConfirm, journalize, clearCurrentPaginationPage }, dispatch);
 };
 
 export default withModulesManager(
