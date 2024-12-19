@@ -293,20 +293,19 @@ class JournalDrawer extends Component {
     var clientMutationIds = this.state.displayedMutations.filter((m) => m.status === 0).map((m) => m.clientMutationId);
     //TODO: change for a "fetchMutationS(ids)"  > requires id_In backend implementation
     if(this.state.limitMutationLogsQuery){
-      var arrayMutations = localStorage.getItem('arrayMutations');
-      var mutationLogs = {};
-      if(arrayMutations==null){
-        arrayMutations = [];
+      var mutationLogs = localStorage.getItem('arrayMutations');
+      if(mutationLogs==null){
+        mutationLogs = {};
+        mutationLogs.arrayMutations = [];
         clientMutationIds.map((id)=>{
-          arrayMutations.push({
+          mutationLogs.arrayMutations.push({
             id: id,
             count: 0
           });
         });
-        mutationLogs.arrayMutations = arrayMutations;
         localStorage.setItem('arrayMutations', JSON.stringify(mutationLogs));
       }else{
-        let parsedJson = JSON.parse(arrayMutations);
+        let parsedJson = JSON.parse(mutationLogs);
         parsedJson.arrayMutations.map((obj)=>{
           if(obj.count < REQUEST_LIMIT){
             this.props.fetchMutation(obj.id);
