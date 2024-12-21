@@ -23,7 +23,6 @@ import FormattedMessage from "./FormattedMessage";
 import ProgressOrError from "./ProgressOrError";
 import withModulesManager from "../../helpers/modules";
 import { formatMessage, formatMessageWithValues } from "../../helpers/i18n";
-import DetailsTable from "./DetailsTable";
 
 const styles = (theme) => ({
   table: theme.table,
@@ -402,7 +401,6 @@ class Table extends Component {
                 </TableRow>
               ))}
           </TableBody>
-
           {!!withPagination && !!count && (
             <TableFooter className={classes.tableFooter}>
               <TableRow>
