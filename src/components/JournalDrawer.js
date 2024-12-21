@@ -300,18 +300,47 @@ class JournalDrawer extends Component {
         clientMutationIds.map((id)=>{
           mutationLogs.arrayMutations.push({
             id: id,
-            count: 0
+            count: 0,
+            time: 0
           });
         });
         localStorage.setItem('arrayMutations', JSON.stringify(mutationLogs));
       }else{
         let parsedJson = JSON.parse(mutationLogs);
-        parsedJson.arrayMutations.map((obj)=>{
-          if(obj.count < REQUEST_LIMIT){
-            this.props.fetchMutation(obj.id);
+      for (let i = 0; i < parsedJson.arrayMutations.length; i++) {
+        let mutationLog = parsedJson.arrayMutations[i];
+        if(!clientMutationIds.includes(mutationLog.id)){
+          //remove success mutationLogs in localStorage
+          parsedJson.arrayMutations = parsedJson.arrayMutations.filter((f) => f.id != mutationLog.id);
+        }else{
+          if(mutationLog.count < REQUEST_LIMIT){
+            this.props.fetchMutation(mutationLog.id);
+            mutationLog.count = mutationLog.count + 1;
+            if(mutationLog.count == 5){
+              mutationLog.time = mutationLog.count;
+              mutationLog.duration = 1;
+            }
+          }else{
+            if(mutationLog.count == mutationLog.time){
+              this.props.fetchMutation(mutationLog.id);
+              mutationLog.duration = mutationLog.duration * 2;
+              mutationLog.time = mutationLog.count + mutationLog.duration;
+            }
+            mutationLog.count = mutationLog.count + 1;
           }
-          obj.count = obj.count + 1;
-        });
+          parsedJson.arrayMutations[i] = mutationLog;
+        }
+        }
+
+        for(let j = 0; j < clientMutationIds.length; j++){
+          if(!parsedJson.arrayMutations.map((m)=> m.id).includes(clientMutationIds[j])){
+            parsedJson.arrayMutations.push({
+              id: clientMutationIds[j],
+              count: 0,
+              time: 0
+            })
+          }
+        }
         localStorage.setItem('arrayMutations', JSON.stringify(parsedJson));
       }
     }else{
