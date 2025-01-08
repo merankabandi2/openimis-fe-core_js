@@ -142,3 +142,5 @@ export const EXPORT_FILE_FORMATS = {
   // It can be configured individually for each Searcher.
   xlsx: "xlsx",
 };
+
+export const REQUEST_LIMIT = 5

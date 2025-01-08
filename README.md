@@ -177,3 +177,4 @@ None
 - `secondCalendarType`: type of secondary calendar picker (if enabled), default "nepali"
 - `secondCalendarLocale`: locale for secondary calendar picker (if enabled), default "nepali_en",
 - `Input.disabledVisibilityBoost`: This setting enhances the visibility of disabled input fields (e.g., text/number inputs, date pickers). When set to __true__, the label color changes to `#181716`, and the input value color to `#5E5B50`. The default is __false__.
+- `limitMutationLogsQuery`: This config to enalble or disable fetchMutationLogs query mutation in core,

@@ -32,7 +32,7 @@ import { fetchMutation, fetchHistoricalMutations } from "../actions";
 import withModulesManager from "../helpers/modules";
 import moment from "moment";
 import _ from "lodash";
-import { CLAIM_STATS_ORDER, GLOBAL_UNDERSCORE, WHITE_SPACE } from "../constants";
+import { CLAIM_STATS_ORDER, GLOBAL_UNDERSCORE, REQUEST_LIMIT, WHITE_SPACE } from "../constants";
 
 const styles = (theme) => ({
   toolbar: {
@@ -258,6 +258,7 @@ class JournalDrawer extends Component {
       displayedMutations: [],
       messagesAnchor: null,
       expanded: false,
+      limitMutationLogsQuery: props.modulesManager.getConf("fe-core", "journalDrawer.limitMutationLogsQuery", false)
     };
   }
 
@@ -291,7 +292,60 @@ class JournalDrawer extends Component {
   checkProcessing = () => {
     var clientMutationIds = this.state.displayedMutations.filter((m) => m.status === 0).map((m) => m.clientMutationId);
     //TODO: change for a "fetchMutationS(ids)"  > requires id_In backend implementation
-    clientMutationIds.forEach((id) => this.props.fetchMutation(id));
+    if(this.state.limitMutationLogsQuery){
+      var mutationLogs = localStorage.getItem('arrayMutations');
+      if(mutationLogs==null){
+        mutationLogs = {};
+        mutationLogs.arrayMutations = [];
+        clientMutationIds.map((id)=>{
+          mutationLogs.arrayMutations.push({
+            id: id,
+            count: 0,
+            time: 0
+          });
+        });
+        localStorage.setItem('arrayMutations', JSON.stringify(mutationLogs));
+      }else{
+        let parsedJson = JSON.parse(mutationLogs);
+      for (let i = 0; i < parsedJson.arrayMutations.length; i++) {
+        let mutationLog = parsedJson.arrayMutations[i];
+        if(!clientMutationIds.includes(mutationLog.id)){
+          //remove success mutationLogs in localStorage
+          parsedJson.arrayMutations = parsedJson.arrayMutations.filter((f) => f.id != mutationLog.id);
+        }else{
+          if(mutationLog.count < REQUEST_LIMIT){
+            this.props.fetchMutation(mutationLog.id);
+            mutationLog.count = mutationLog.count + 1;
+            if(mutationLog.count == 5){
+              mutationLog.time = mutationLog.count;
+              mutationLog.duration = 1;
+            }
+          }else{
+            if(mutationLog.count == mutationLog.time){
+              this.props.fetchMutation(mutationLog.id);
+              mutationLog.duration = mutationLog.duration * 2;
+              mutationLog.time = mutationLog.count + mutationLog.duration;
+            }
+            mutationLog.count = mutationLog.count + 1;
+          }
+          parsedJson.arrayMutations[i] = mutationLog;
+        }
+        }
+
+        for(let j = 0; j < clientMutationIds.length; j++){
+          if(!parsedJson.arrayMutations.map((m)=> m.id).includes(clientMutationIds[j])){
+            parsedJson.arrayMutations.push({
+              id: clientMutationIds[j],
+              count: 0,
+              time: 0
+            })
+          }
+        }
+        localStorage.setItem('arrayMutations', JSON.stringify(parsedJson));
+      }
+    }else{
+      clientMutationIds.forEach((id) => this.props.fetchMutation(id));
+    }
   };
   more = (e) => {
     this.props.fetchHistoricalMutations(this.state.pageSize, this.state.afterCursor);
