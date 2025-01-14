@@ -140,7 +140,7 @@ const App = (props) => {
   if (!auth.isInitialized) return null;
   return (
     <>
-      <Helmet titleTemplate="%s - openIMIS" defaultTitle="openIMIS" />
+      <Helmet titleTemplate="%s - Merankabandi MIS" defaultTitle="Merankabandi MIS" />
       <CssBaseline />
       <ModulesManagerProvider value={modulesManager}>
         <PublicPageLanguageProvider>
