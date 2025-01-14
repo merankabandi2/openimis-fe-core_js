@@ -211,8 +211,7 @@ class MainMenuContribution extends Component {
         </AccordionSummary>
         <AccordionDetails>
           <List component="nav">
-            {entries.map((entry, idx) => {
-              return (
+            {entries.map((entry, idx) => (
               <Fragment key={`${this.props.header}_${idx}`}>
                 <ListItem
                   button
@@ -228,7 +227,7 @@ class MainMenuContribution extends Component {
                   <Divider key={`${this.props.header}_${idx}_divider`} className={this.props.classes.drawerDivider} />
                 )}
               </Fragment>
-            )})}
+            ))}
           </List>
         </AccordionDetails>
       </Accordion>
@@ -237,12 +236,7 @@ class MainMenuContribution extends Component {
 
   render() {
     const { menuVariant, modulesManager } = this.props;
-    console.log('entries', this.props.entries);
-    console.log(this.props.header, 'headers');
     const updatedEntries = this.fetchSubmenuConfig(modulesManager);
-
-    console.log('Filtered and Sorted Entries:', updatedEntries);
-
     if (menuVariant === "AppBar") {
       return this.appBarMenu(updatedEntries);
     } else {
