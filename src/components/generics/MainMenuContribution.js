@@ -24,6 +24,7 @@ import {
 import withModulesManager from "../../helpers/modules";
 import { _historyPush } from "../../helpers/history";
 
+
 const styles = (theme) => ({
   panel: {
     margin: "0 !important",
@@ -128,7 +129,32 @@ class MainMenuContribution extends Component {
     _historyPush(modulesManager, history, route);
   }
 
-  appBarMenu = () => {
+  fetchSubmenuConfig(modulesManager) {
+    const menuConfig = modulesManager.getConf("fe-core", "menus", []);
+    const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
+    const submenuMapping = {};
+    const copyOfEntries = this.props.entries;
+    if ( !isMenuConfigEmpty ) { 
+      menuConfig.forEach(menu => {
+        (menu.submenus || []).forEach(submenu => {
+          submenuMapping[submenu.id] = submenu.position;
+        });
+      });
+  
+      const updatedEntries = copyOfEntries
+        .map(entry => ({
+          ...entry,
+          position: submenuMapping[entry.id] || null,
+        }))
+        .filter(entry => entry.position !== null)
+        .sort((a, b) => a.position - b.position);
+      return updatedEntries;
+    }
+    return copyOfEntries;
+    
+  }
+
+  appBarMenu = (entries) => {
     return (
       <Fragment>
         <Button ref={this.state.anchorRef} onClick={this.toggleExpanded} className={this.props.classes.menuHeading}>
@@ -151,7 +177,7 @@ class MainMenuContribution extends Component {
               <Paper className={this.props.classes.appBarMenuPaper} id={`${this.props.header}-menu-list`}>
                 <ClickAwayListener onClickAway={this.handleMenuClose}>
                   <MenuList>
-                    {this.props.entries.map((entry, idx) => (
+                    {entries.map((entry, idx) => (
                       <div key={`${this.props.header}_${idx}_menuItem`}>
                         <MenuItem onClick={(e) => this.handleMenuSelect(e, entry.route)}  component="a"  href={`${process.env.PUBLIC_URL || ""}${entry.route}`} passHref>
                           <ListItemIcon>{entry.icon}</ListItemIcon>
@@ -176,7 +202,7 @@ class MainMenuContribution extends Component {
     );
   };
 
-  drawerMenu = () => {
+  drawerMenu = (entries) => {
     return (
       <Accordion className={this.props.classes.panel} expanded={this.state.expanded} onChange={this.toggleExpanded}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} id={`${this.props.header}-header`}>
@@ -185,7 +211,8 @@ class MainMenuContribution extends Component {
         </AccordionSummary>
         <AccordionDetails>
           <List component="nav">
-            {this.props.entries.map((entry, idx) => (
+            {entries.map((entry, idx) => {
+              return (
               <Fragment key={`${this.props.header}_${idx}`}>
                 <ListItem
                   button
@@ -201,7 +228,7 @@ class MainMenuContribution extends Component {
                   <Divider key={`${this.props.header}_${idx}_divider`} className={this.props.classes.drawerDivider} />
                 )}
               </Fragment>
-            ))}
+            )})}
           </List>
         </AccordionDetails>
       </Accordion>
@@ -209,11 +236,17 @@ class MainMenuContribution extends Component {
   };
 
   render() {
-    const { menuVariant } = this.props;
+    const { menuVariant, modulesManager } = this.props;
+    console.log('entries', this.props.entries);
+    console.log(this.props.header, 'headers');
+    const updatedEntries = this.fetchSubmenuConfig(modulesManager);
+
+    console.log('Filtered and Sorted Entries:', updatedEntries);
+
     if (menuVariant === "AppBar") {
-      return this.appBarMenu();
+      return this.appBarMenu(updatedEntries);
     } else {
-      return this.drawerMenu();
+      return this.drawerMenu(updatedEntries);
     }
   }
 }
@@ -222,6 +255,7 @@ MainMenuContribution.propTypes = {
   header: PropTypes.string.isRequired,
   entries: PropTypes.array.isRequired,
   history: PropTypes.object.isRequired,
+  menuId: PropTypes.object.isRequired,
 };
 
 export default withModulesManager(withTheme(withStyles(styles)(MainMenuContribution)));
