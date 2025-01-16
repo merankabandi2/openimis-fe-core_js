@@ -134,7 +134,8 @@ class MainMenuContribution extends Component {
     const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
     const submenuMapping = {};
     const copyOfEntries = this.props.entries;
-    if ( !isMenuConfigEmpty ) { 
+  
+    if (!isMenuConfigEmpty) {
       menuConfig
         .filter(menu => menu.id == this.props.menuId)
         .forEach(menu => {
@@ -150,12 +151,27 @@ class MainMenuContribution extends Component {
         }))
         .filter(entry => entry.position !== null)
         .sort((a, b) => a.position - b.position);
-        return updatedEntries.filter(entry => {
-          return(!entry.filter || entry.filter(this.props.rights)
-        )});
+  
+      const uniqueEntries = new Map();
+      updatedEntries.forEach(entry => {
+        if (!uniqueEntries.has(entry.id)) {
+          uniqueEntries.set(entry.id, entry);
+        }
+      });
+  
+      return Array.from(uniqueEntries.values()).filter(entry => {
+        return !entry.filter || entry.filter(this.props.rights);
+      });
+    }
+  
+    const uniqueEntriesFallback = new Map();
+    copyOfEntries.forEach(entry => {
+      if (!uniqueEntriesFallback.has(entry.id)) {
+        uniqueEntriesFallback.set(entry.id, entry);
       }
-    return copyOfEntries;
-    
+    });
+  
+    return Array.from(uniqueEntriesFallback.values());
   }
 
   appBarMenu = (entries) => {
