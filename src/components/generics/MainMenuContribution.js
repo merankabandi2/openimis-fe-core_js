@@ -129,27 +129,31 @@ class MainMenuContribution extends Component {
     _historyPush(modulesManager, history, route);
   }
 
-  fetchSubmenuConfig(modulesManager) {
+  fetchSubmenuConfig(modulesManager, allEntries) {
     const menuConfig = modulesManager.getConf("fe-core", "menus", []);
     const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
     const submenuMapping = {};
     const copyOfEntries = this.props.entries;
     if ( !isMenuConfigEmpty ) { 
-      menuConfig.forEach(menu => {
-        (menu.submenus || []).forEach(submenu => {
-          submenuMapping[submenu.id] = submenu.position;
+      menuConfig
+        .filter(menu => menu.id == this.props.menuId)
+        .forEach(menu => {
+          (menu.submenus || []).forEach(submenu => {
+            submenuMapping[submenu.id] = submenu.position;
+          });
         });
-      });
   
-      const updatedEntries = copyOfEntries
+      const updatedEntries = allEntries
         .map(entry => ({
           ...entry,
           position: submenuMapping[entry.id] || null,
         }))
         .filter(entry => entry.position !== null)
         .sort((a, b) => a.position - b.position);
-      return updatedEntries;
-    }
+        return updatedEntries.filter(entry => {
+          return(!entry.filter || entry.filter(this.props.rights)
+        )});
+      }
     return copyOfEntries;
     
   }
@@ -236,7 +240,8 @@ class MainMenuContribution extends Component {
 
   render() {
     const { menuVariant, modulesManager } = this.props;
-    const updatedEntries = this.fetchSubmenuConfig(modulesManager);
+    const allEntries = modulesManager.getMenuEntries();
+    const updatedEntries = this.fetchSubmenuConfig(modulesManager, allEntries);
     if (menuVariant === "AppBar") {
       return this.appBarMenu(updatedEntries);
     } else {
