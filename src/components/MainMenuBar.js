@@ -9,16 +9,18 @@ function getMenus(modulesManager, key, rights) {
   const menuConfig = modulesManager.getConf("fe-core", "menus", []);
   const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
   
+  const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager);
+  const menuToProcess = [...menus, ...unmatchedMenus];
+
   let processedMenus;
   if (!isMenuConfigEmpty) {
-    const sortedMenus = sortMenus(menus, menuConfig);
+    const sortedMenus = sortMenus(menuToProcess, menuConfig);
     processedMenus = processMenu(sortedMenus);
   } else {
     processedMenus = processMenu(menus);
   }
 
-  const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager);
-  return [...processedMenus, ...unmatchedMenus];
+  return processedMenus;
 };
 
 function getUnmatchedMenus(menuConfig, menus, rights, modulesManager) {
@@ -26,26 +28,30 @@ function getUnmatchedMenus(menuConfig, menus, rights, modulesManager) {
     .filter((menu) => typeof menu === 'object')
     .map((menu) => menu.name);
   const history = useHistory();
+
   const unmatchedConfigs = menuConfig.filter((config) => !existingIds.includes(config.id));
 
   return unmatchedConfigs
-  .map((config) => {
-    if (config.filter && !config.filter(rights)) {
-      return null;
-    }
+    .map((config) => {
+      if (config.filter && !config.filter(rights)) {
+        return null;
+      }
 
-    return () => (
-      <MainMenuContribution
-        header={config.name}
-        menuId={config.id}
-        modulesManager={modulesManager}
-        rights={rights}
-        history={history}
-        entries={[]}
-      />
-    );
-  })
-  .filter(Boolean);
+      return {
+        name: config.id,
+        component: () => (
+          <MainMenuContribution
+            header={config.name}
+            menuId={config.id}
+            modulesManager={modulesManager}
+            rights={rights}
+            history={history}
+            entries={[]}
+          />
+        ),
+      };
+    })
+    .filter(Boolean);
 }
 
 function processMenu(menus) {
