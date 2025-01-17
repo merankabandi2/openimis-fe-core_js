@@ -4,12 +4,12 @@ import { useHistory } from "react-router-dom";
 import { useModulesManager } from "../helpers/modules";
 import MainMenuContribution from "./generics/MainMenuContribution";
 
-function getMenus(modulesManager, key, rights) {
+function getMenus(modulesManager, key, rights, menuVariant) {
   const menus = modulesManager.getContribs(key);
   const menuConfig = modulesManager.getConf("fe-core", "menus", []);
   const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
   
-  const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager);
+  const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant);
   const menuToProcess = [...menus, ...unmatchedMenus];
 
   let processedMenus;
@@ -23,7 +23,7 @@ function getMenus(modulesManager, key, rights) {
   return processedMenus;
 };
 
-function getUnmatchedMenus(menuConfig, menus, rights, modulesManager) {
+function getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant) {
   const existingIds = menus
     .filter((menu) => typeof menu === 'object')
     .map((menu) => menu.name);
@@ -41,6 +41,7 @@ function getUnmatchedMenus(menuConfig, menus, rights, modulesManager) {
         name: config.id,
         component: () => (
           <MainMenuContribution
+            menuVariant={menuVariant}
             header={config.name}
             menuId={config.id}
             modulesManager={modulesManager}
@@ -82,22 +83,22 @@ function sortMenus(menus, menuConfig) {
   return updatedMenus.sort((a, b) => a.position - b.position);
 }
 
-const MainMenuBar = ({ children = null, contributionKey, reverse = false, ...delegated }) => {
+const MainMenuBar = ({ children = null, contributionKey, reverse = false, menuVariant, ...delegated }) => {
   const modulesManager = useModulesManager();
   const rights = useSelector((state) => state.core?.user?.i_user?.rights || []);
   const components = useMemo(() => {
-    const components = getMenus(modulesManager, contributionKey, rights);
+    const components = getMenus(modulesManager, contributionKey, rights, menuVariant);
     if (reverse) {
       components.reverse();
     }
     return components;
-  }, [contributionKey, reverse, rights]);
+  }, [contributionKey, reverse, rights, menuVariant]);
 
   return (
     <>
       {children}
       {components.map((Comp, idx) => {
-        return <Comp key={`${contributionKey}_${idx}`} modulesManager={modulesManager} {...delegated} />
+        return <Comp key={`${contributionKey}_${idx}`} modulesManager={modulesManager} menuVariant={menuVariant} {...delegated} />
         }
       )}
     </>
