@@ -178,3 +178,91 @@ None
 - `secondCalendarLocale`: locale for secondary calendar picker (if enabled), default "nepali_en",
 - `Input.disabledVisibilityBoost`: This setting enhances the visibility of disabled input fields (e.g., text/number inputs, date pickers). When set to __true__, the label color changes to `#181716`, and the input value color to `#5E5B50`. The default is __false__.
 - `limitMutationLogsQuery`: This config to enalble or disable fetchMutationLogs query mutation in core,
+
+## Main Menu and Submenu Configuration
+
+### Overview
+
+This document provides guidance on how to configure the Main Menu and its Submenus within the OpenIMIS application. It outlines the structure of menu entries, explains key concepts, and lists all possible configurations extracted from the system.
+
+### Key Concepts
+1. **Main Menu and Submenu Structure:**
+   - Each menu is uniquely identified by an `id`.
+   - Submenus are associated with specific Main Menu entries and cannot currently be added dynamically unless linked to predefined frontend logic.
+2. **Attributes of Menu Entries:**
+   - **`text`:** Label displayed for the menu entry.
+   - **`icon`:** Icon displayed alongside the label.
+   - **`route`:** Path to navigate when the menu is clicked.
+   - **`filter`:** Logic to determine visibility based on user permissions.
+3. **Positioning:**
+   - The `position` attribute determines the order of menus and submenus in the interface.
+4. **Dynamic Linking:**
+   - New menus can be created dynamically, but submenus must be linked to existing application logic.
+
+### Table of Configurations
+
+Here’s the complete table with all the submenu configurations extracted, including their `Name of Submenu`, `ID of Submenu`, `Filter`, and `Route`.
+
+| **Name of Submenu**                  | **ID of Submenu**                | **Filter**                                                          | **Route**                           |
+|--------------------------------------|----------------------------------|----------------------------------------------------------------------|-------------------------------------|
+| Tasks Management View                | `task.tasks`                    | `(rights) => rights.includes(RIGHT_TASKS_MANAGEMENT_SEARCH_ALL)`    | `/tasks`                            |
+| Tasks Management All View            | `task.allTasks`                 | `(rights) => rights.includes(RIGHT_TASKS_MANAGEMENT_SEARCH_ALL)`    | `/AllTasks`                         |
+| Registers                            | `tools.registers`               | `(rights) => enablers(rights, RIGHT_REGISTERS)`                     | `/tools/registers`                  |
+| Extracts                             | `tools.extracts`                | `(rights) => enablers(rights, RIGHT_EXTRACTS)`                      | `/tools/extracts`                   |
+| Reports                              | `tools.reports`                 | `(rights) => enablers(rights, RIGHT_REPORTS)`                       | `/tools/reports`                    |
+| Social Protection Benefit Plans      | `socialProtection.benefitPlans` | `(rights) => rights.includes(RIGHT_BENEFIT_PLAN_SEARCH)`            | `/benefitPlans`                     |
+| My Profile                           | `profile.myProfile`             | None                                                                | `/profile/myProfile`                |
+| Change Password                      | `profile.changePassword`        | None                                                                | `/profile/changePassword`           |
+| Policies                             | `insuree.policies`              | `(rights) => rights.includes(RIGHT_POLICY)`                         | `/${ROUTE_POLICY_POLICIES}`         |
+| Payment Point                        | `legalAndFinance.paymentPoint`  | `(rights) => rights.includes(RIGHT_PAYMENT_POINT_SEARCH)`           | `/${ROUTE_PAYMENT_POINTS}`          |
+| Payrolls                             | `legalAndFinance.payrolls`      | `(rights) => rights.includes(RIGHT_PAYROLL_SEARCH)`                 | `/${ROUTE_PAYROLLS}`                |
+| Payrolls Pending                     | `legalAndFinance.payrollsPending` | `(rights) => rights.includes(RIGHT_PAYROLL_SEARCH)`              | `/${ROUTE_PAYROLLS_PENDING}`        |
+| Payrolls Approved                    | `legalAndFinance.payrollsApproved` | `(rights) => rights.includes(RIGHT_PAYROLL_SEARCH)`            | `/${ROUTE_PAYROLLS_APPROVED}`       |
+| Payrolls Reconciled                  | `legalAndFinance.payrollsReconciled` | `(rights) => rights.includes(RIGHT_PAYROLL_SEARCH)`          | `/${ROUTE_PAYROLLS_RECONCILED}`     |
+| Payments                             | `insuree.payment`               | `(rights) => rights.includes(RIGHT_PAYMENT)`                        | `/${ROUTE_PAYMENTS}`                |
+| Payment Cycles                       | `legalAndFinance.paymentCycles` | `(rights) => rights.includes(RIGHT_PAYMENT_CYCLE_SEARCH)`           | `/${ROUTE_PAYMENT_CYCLES}`          |
+| Payers                               | `admin.payers`                  | `(rights) => rights.includes(RIGHT_PAYERS)`                         | `/payer/payers`                     |
+| Individual Reports                   | `openSearch.individualReports`  | None                                                                | `/individualReports`                |
+| Group Reports                        | `openSearch.groupReports`       | None                                                                | `/groupReports`                     |
+| Beneficiary Reports                  | `openSearch.beneficiaryReports` | None                                                                | `/beneficiaryReports`               |
+| Invoice Reports                      | `openSearch.invoiceReports`     | None                                                                | `/invoiceReports`                   |
+| Payment Reports                      | `openSearch.paymentReports`     | None                                                                | `/paymentReports`                   |
+| Grievance Reports                    | `openSearch.grievanceReports`   | None                                                                | `/grievanceReports`                 |
+| Data Updates Reports                 | `openSearch.dataUpdatesReports` | None                                                                | `/dataUpdatesReports`               |
+| Open Search Config                   | `openSearch.openSearchConfig`   | None                                                                | `/dashboardConfiguration`           |
+| Invoices                             | `legalAndFinance.invoices`      | `(rights) => rights.filter((r) => r >= RIGHT_INVOICE_SEARCH && r <= RIGHT_INVOICE_AMEND).length > 0` | `/invoices`                         |
+| Bills                                | `legalAndFinance.bills`         | `(rights) => rights.filter((r) => r >= RIGHT_BILL_SEARCH && r <= RIGHT_BILL_AMEND).length > 0`        | `/bills`                            |
+| Add Family or Group                  | `insuree.addFamilyOrGroup`      | `(rights) => rights.includes(RIGHT_FAMILY_ADD)`                     | `/${ROUTE_INSUREE_FAMILY}`          |
+| Families or Groups                   | `insuree.familiesOrGroups`      | `(rights) => rights.includes(RIGHT_FAMILY)`                         | `/${ROUTE_INSUREE_FAMILIES}`        |
+| Insurees                             | `insuree.insurees`              | `(rights) => rights.includes(RIGHT_INSUREE)`                        | `/${ROUTE_INSUREE_INSUREES}`        |
+| Individuals                          | `individual.individuals`        | `(rights) => rights.includes(RIGHT_INDIVIDUAL_SEARCH)`              | `/${ROUTE_INDIVIDUALS}`             |
+| Groups                               | `individual.groups`              | `(rights) => rights.includes(RIGHT_GROUP_SEARCH)`                    | `/${ROUTE_GROUPS}`                  |
+| API Imports                          | `individual.api_imports`         | `(rights) => rights.includes(RIGHT_INDIVIDUAL_SEARCH)`               | `/${ROUTE_API_IMPORTS}`             |
+| Grievances                           | `grievance.grievances`           | `(rights) => rights.includes(RIGHT_TICKET_SEARCH)`                   | `/${ROUTE_TICKET_TICKETS}`          |
+| Add Grievance                        | `grievance.add`                  | `(rights) => rights.includes(RIGHT_TICKET_ADD)`                      | `/${ROUTE_TICKET_NEW_TICKET}`      |
+| Role Management                      | `admin.roleManagement`           | `(rights) => rights.includes(RIGHT_ROLE_SEARCH)`                     | `"/" + ROUTE_ROLES`                 |
+| Contribution Plans                   | `admin.contributionPlans`        | `(rights) => rights.includes(RIGHT_CONTRIBUTION_PLAN_SEARCH)`        | `"/" + ROUTE_CONTRIBUTION_PLANS`   |
+| Contribution Plan Bundles            | `admin.contributionPlanBundles`  | `(rights) => rights.includes(RIGHT_CONTRIBUTION_PLAN_BUNDLE_SEARCH)` | `"/" + ROUTE_CONTRIBUTION_PLAN_BUNDLES` |
+| Payment Plans                        | `legalAndFinance.paymentPlans`   | `(rights) => rights.includes(RIGHT_PAYMENT_PLAN_SEARCH)`            | `"/" + ROUTE_PAYMENT_PLANS`        |
+| Contribution                         | `insuree.contribution`           | `(rights) => rights.includes(RIGHT_CONTRIBUTION)`                    | `/${ROUTE_CONTRIBUTION_CONTRIBUTIONS}` |
+| Health Facility Claims               | `claim.healthFacilityClaims`     | `(rights) => rights.some((r) => r >= RIGHT_CLAIMREVIEW && r <= RIGHT_PROCESS)` | `/claim/healthFacilities`           |
+| Reviews                              | `claim.reviews`                  | `(rights) => rights.some((r) => r >= RIGHT_CLAIMREVIEW && r <= RIGHT_PROCESS)` | `/claim/reviews`                    |
+| Claim Batch (Batch Run)              | `claim.claimBatch`               | `(rights) => !!rights.filter(r => r >= RIGHT_PROCESS && r <= RIGHT_PREVIEW).length` | `/${ROUTE_CLAIM_BATCH}`             |
+| Products                             | `admin.products`                 | `(rights) => rights.includes(RIGHT_PRODUCTS)`                        | `/admin/products`                   |
+| Health Facilities                    | `admin.healthFacilities`         | `(rights) => rights.includes(RIGHT_HEALTHFACILITIES)`                | `/location/healthFacilities`       |
+| Medical Services Prices List         | `admin.services`                 | `(rights) => rights.includes(RIGHT_PRICELISTMS)`                     | `/medical/pricelists/services`     |
+| Medical Items Prices List            | `admin.items`                    | `(rights) => rights.includes(RIGHT_PRICELISTMI)`                     | `/medical/pricelists/items`        |
+| Medical Services                     | `admin.medicalServices`          | `(rights) => rights.includes(RIGHT_MEDICALSERVICES)`                 | `/medical/pricelists/services`     |
+| Medical Items                        | `admin.medicalItems`             | `(rights) => rights.includes(RIGHT_MEDICALITEMS)`                    | `/medical/pricelists/items`        |
+| Users                                | `admin.users`                    | `(rights) => rights.includes(RIGHT_USERS)`                           | `/admin/users`                      |
+| Locations                            | `admin.locations`                | `(rights) => rights.includes(RIGHT_LOCATIONS)`                       | `/location/locations`              |
+| Contracts                            | `legalAndFinance.contracts`      | `(rights) => rights.includes(RIGHT_POLICYHOLDERCONTRACT_SEARCH)`     | `"/" + ROUTE_CONTRACTS`             |
+
+
+### Additional Notes
+
+- **Dynamic Menu Creation:** New menus can be added dynamically by defining them in the configuration.
+
+- **Submenu Restrictions:** Submenus must be linked to predefined frontend logic and cannot currently be added dynamically.
+
+- **Configuration Management:** Use the `id` field to map menus and submenus to their frontend counterparts for consistent functionality.
