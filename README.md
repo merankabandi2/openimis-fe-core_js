@@ -198,6 +198,8 @@ This document provides guidance on how to configure the Main Menu and its Submen
    - The `position` attribute determines the order of menus and submenus in the interface.
 4. **Dynamic Linking:**
    - New menus can be created dynamically, but submenus must be linked to existing application logic.
+5. **Keeping old approach:**
+   - If you want to keep old approach, just leave 'menus' as empty array or do not put this key into configuration file. In that case menu will be populated in a deault, old way based on the order of modules in openimis.json.  
 
 ### Table of Configurations
 
@@ -266,3 +268,8 @@ Here’s the complete table with all the submenu configurations extracted, inclu
 - **Submenu Restrictions:** Submenus must be linked to predefined frontend logic and cannot currently be added dynamically.
 
 - **Configuration Management:** Use the `id` field to map menus and submenus to their frontend counterparts for consistent functionality.
+
+### Useful links (openIMIS wiki page on Confluence)
+- [More detailed instruction of configuration](https://openimis.atlassian.net/wiki/spaces/OP/pages/4209606659/Solution+Building+configuration+of+Main+Menu+and+Submenus)
+- [List of possible configurations of submenus items](https://openimis.atlassian.net/wiki/spaces/OP/pages/4209737755/List+of+submenu+entries+available+in+system)
+- [Detailed description of technical approach to achieve having menu configurable](https://openimis.atlassian.net/wiki/spaces/OP/pages/4209803280/Technical+Approach+to+have+Menu+Configuration+flexible).
