@@ -131,7 +131,7 @@ class MainMenuContribution extends Component {
 
   fetchSubmenuConfig(modulesManager, allEntries) {
     const menuConfig = modulesManager.getConf("fe-core", "menus", []);
-    const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
+    const isMenuConfigEmpty = !(menuConfig?.length);
     const submenuMapping = {};
     const copyOfEntries = this.props.entries;
   
