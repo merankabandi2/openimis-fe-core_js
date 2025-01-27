@@ -97,6 +97,51 @@ const AccordionDetails = withStyles((theme) => ({
   },
 }))(MuiAccordionDetails);
 
+function fetchSubmenuConfig(modulesManager, allEntries, entries, menuId, rights) {
+  const menuConfig = modulesManager.getConf("fe-core", "menus", []);
+  const isMenuConfigEmpty = !(menuConfig?.length);
+  const submenuMapping = {};
+  const copyOfEntries = entries;
+
+  if (!isMenuConfigEmpty) {
+    menuConfig
+      .filter(menu => menu.id == menuId)
+      .forEach(menu => {
+        (menu.submenus || []).forEach(submenu => {
+          submenuMapping[submenu.id] = submenu.position;
+        });
+      });
+
+    const updatedEntries = allEntries
+      .map(entry => ({
+        ...entry,
+        position: submenuMapping[entry.id] || null,
+      }))
+      .filter(entry => entry.position !== null)
+      .sort((a, b) => a.position - b.position);
+
+    const uniqueEntries = new Map();
+    updatedEntries.forEach(entry => {
+      if (!uniqueEntries.has(entry.id)) {
+        uniqueEntries.set(entry.id, entry);
+      }
+    });
+
+    return Array.from(uniqueEntries.values()).filter(entry => {
+      return !entry.filter || entry.filter(rights);
+    });
+  }
+
+  const uniqueEntriesFallback = new Map();
+  copyOfEntries.forEach(entry => {
+    if (!uniqueEntriesFallback.has(entry.id)) {
+      uniqueEntriesFallback.set(entry.id, entry);
+    }
+  });
+
+  return Array.from(uniqueEntriesFallback.values());
+}
+
 class MainMenuContribution extends Component {
   state = {
     expanded: false,
@@ -127,51 +172,6 @@ class MainMenuContribution extends Component {
   redirect(route) {
     const { modulesManager, history } = this.props;
     _historyPush(modulesManager, history, route);
-  }
-
-  fetchSubmenuConfig(modulesManager, allEntries) {
-    const menuConfig = modulesManager.getConf("fe-core", "menus", []);
-    const isMenuConfigEmpty = !(menuConfig?.length);
-    const submenuMapping = {};
-    const copyOfEntries = this.props.entries;
-  
-    if (!isMenuConfigEmpty) {
-      menuConfig
-        .filter(menu => menu.id == this.props.menuId)
-        .forEach(menu => {
-          (menu.submenus || []).forEach(submenu => {
-            submenuMapping[submenu.id] = submenu.position;
-          });
-        });
-  
-      const updatedEntries = allEntries
-        .map(entry => ({
-          ...entry,
-          position: submenuMapping[entry.id] || null,
-        }))
-        .filter(entry => entry.position !== null)
-        .sort((a, b) => a.position - b.position);
-  
-      const uniqueEntries = new Map();
-      updatedEntries.forEach(entry => {
-        if (!uniqueEntries.has(entry.id)) {
-          uniqueEntries.set(entry.id, entry);
-        }
-      });
-  
-      return Array.from(uniqueEntries.values()).filter(entry => {
-        return !entry.filter || entry.filter(this.props.rights);
-      });
-    }
-  
-    const uniqueEntriesFallback = new Map();
-    copyOfEntries.forEach(entry => {
-      if (!uniqueEntriesFallback.has(entry.id)) {
-        uniqueEntriesFallback.set(entry.id, entry);
-      }
-    });
-  
-    return Array.from(uniqueEntriesFallback.values());
   }
 
   appBarMenu = (entries) => {
@@ -257,7 +257,9 @@ class MainMenuContribution extends Component {
   render() {
     const { menuVariant, modulesManager } = this.props;
     const allEntries = modulesManager.getMenuEntries();
-    const updatedEntries = this.fetchSubmenuConfig(modulesManager, allEntries);
+    const updatedEntries = fetchSubmenuConfig(
+      modulesManager, allEntries, this.props.entries, this.props.menuId, this.props.rights
+    );
     if (menuVariant === "AppBar") {
       return this.appBarMenu(updatedEntries);
     } else {
