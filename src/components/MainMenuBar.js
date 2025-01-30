@@ -7,21 +7,16 @@ import MainMenuContribution from "./generics/MainMenuContribution";
 function getMenus(modulesManager, key, rights, menuVariant) {
   const menus = modulesManager.getContribs(key);
   const menuConfig = modulesManager.getConf("fe-core", "menus", []);
-  const isMenuConfigEmpty = !menuConfig || menuConfig.length === 0;
   
-  const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant);
-  const menuToProcess = [...menus, ...unmatchedMenus];
-
-  let processedMenus;
-  if (!isMenuConfigEmpty) {
+  if (menuConfig?.length) {
+    const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant);
+    const menuToProcess = [...menus, ...unmatchedMenus];
     const sortedMenus = sortMenus(menuToProcess, menuConfig);
-    processedMenus = processMenu(sortedMenus);
-  } else {
-    processedMenus = processMenu(menus);
+    return processMenu(sortedMenus);
   }
 
-  return processedMenus;
-};
+  return processMenu(menus);
+}
 
 function getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant) {
   const existingIds = menus
@@ -57,13 +52,8 @@ function getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVarian
 
 function processMenu(menus) {
   return menus
-    .map((menu) => {
-      const menuType = typeof menu;
-      return (
-        menuType === 'object' ? menu.component : menu
-      )
-    }
-  ).filter(Boolean);
+    .map((menu) => menu?.component || menu)
+    .filter(Boolean);
 };
 
 function sortMenus(menus, menuConfig) {
