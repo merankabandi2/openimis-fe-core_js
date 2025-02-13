@@ -21,6 +21,7 @@ import {
 import MenuIcon from "@material-ui/icons/Menu";
 import Contributions from "./generics/Contributions";
 import FormattedMessage from "./generics/FormattedMessage";
+import MainMenuBar from "./MainMenuBar";
 import JournalDrawer from "./JournalDrawer";
 import { useBoolean, useAuthentication } from "../helpers/hooks";
 import LanguageQuickPicker from "../pickers/LanguageQuickPicker";
@@ -28,6 +29,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Switch } from "@material-ui/core";
 import { useTranslations } from "../helpers/i18n";
 import { DEFAULT } from "../constants";
+
 
 export const APP_BAR_CONTRIBUTION_KEY = "core.AppBar";
 export const MAIN_MENU_CONTRIBUTION_KEY = "core.MainMenu";
@@ -267,10 +269,9 @@ const RequireAuth = (props) => {
           </Hidden>
           </Button>
             <div className={classes.drawerContainer}></div>
-                  <Contributions {...others} contributionKey={MAIN_MENU_CONTRIBUTION_KEY} menuVariant="Drawer">
-                    <Divider />
-
-              </Contributions>
+              <MainMenuBar {...others} menuVariant="Drawer" contributionKey={MAIN_MENU_CONTRIBUTION_KEY}>
+                <Divider />
+              </MainMenuBar>
             <div/>
             </Drawer>  
           <JournalDrawer open={isDrawerOpen} handleDrawer={setDrawerOpen.toggle} />
@@ -319,9 +320,9 @@ const RequireAuth = (props) => {
           </Hidden>
           {isAppBarMenu && (
             <Hidden smDown implementation="css">
-              <Contributions {...others} menuVariant="AppBar" contributionKey={MAIN_MENU_CONTRIBUTION_KEY}>
+              <MainMenuBar {...others} menuVariant="AppBar" contributionKey={MAIN_MENU_CONTRIBUTION_KEY}>
                 <div onClick={setOpen.off} />
-              </Contributions>
+              </MainMenuBar>
             </Hidden>
           )}
           {isWorker ? (
