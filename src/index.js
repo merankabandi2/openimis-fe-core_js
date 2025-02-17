@@ -200,6 +200,7 @@ const DEFAULT_CONFIG = {
       icon: <AccountBox />,
       route: "/" + ROUTE_ROLES,
       filter: (rights) => rights.includes(RIGHT_ROLE_SEARCH),
+      id: 'admin.roleManagement',
     },
   ],
 };
