@@ -234,12 +234,14 @@ export function graphqlMutation(mutation, variables, type = "CORE_TRIGGER_MUTATI
 }
 
 export function fetch(config) {
+  const csrfToken = localStorage.getItem('csrfToken');
   return async (dispatch) => {
     return dispatch({
       [RSAA]: {
         ...config,
         headers: {
           "Content-Type": "application/json",
+          'X-CSRFToken': csrfToken,
           ...config.headers,
         },
       },
@@ -260,11 +262,15 @@ export function login(credentials) {
     if (credentials) {
       const mutation = `mutation authenticate($username: String!, $password: String!) {
             tokenAuth(username: $username, password: $password) {
-              refreshExpiresIn
+              refreshExpiresIn,
+              csrfToken
             }
           }`;
 
       const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        localStorage.setItem('csrfToken', csrfToken);
+      }
 
       try {
         const response = await dispatch(
@@ -276,6 +282,10 @@ export function login(credentials) {
           const errorMessage = response.payload.errors[0].message;
           dispatch(authError({ message: errorMessage }));
           return { loginStatus: "CORE_AUTH_ERR", message: errorMessage };
+        }
+        const csrfToken = response.payload.data.tokenAuth.csrfToken;
+        if (csrfToken) {
+          localStorage.setItem('csrfToken', csrfToken);
         }
         const action = await dispatch(loadUser());
         return { loginStatus: action.type, message: action?.payload?.response?.detail ?? "" };
