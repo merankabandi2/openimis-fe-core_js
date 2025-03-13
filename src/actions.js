@@ -10,7 +10,7 @@ import {
   formatServerError,
 } from "./helpers/api";
 
-const requestedWith = 'webapp'
+const REQUESTED_WITH = 'webapp'
 
 const ROLE_FULL_PROJECTION = () => [
   "id",
@@ -244,7 +244,7 @@ export function fetch(config) {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,
-          'X-Requested-With': requestedWith,
+          'X-Requested-With': REQUESTED_WITH,
           ...config.headers,
         },
       },
