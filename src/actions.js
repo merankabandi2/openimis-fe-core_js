@@ -10,6 +10,8 @@ import {
   formatServerError,
 } from "./helpers/api";
 
+const requestedWith = 'webapp'
+
 const ROLE_FULL_PROJECTION = () => [
   "id",
   "uuid",
@@ -242,6 +244,7 @@ export function fetch(config) {
         headers: {
           "Content-Type": "application/json",
           'X-CSRFToken': csrfToken,
+          'X-Requested-With': requestedWith,
           ...config.headers,
         },
       },
