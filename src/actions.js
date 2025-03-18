@@ -237,7 +237,6 @@ export function graphqlMutation(mutation, variables, type = "CORE_TRIGGER_MUTATI
 
 export function fetch(config) {
   const csrfToken = localStorage.getItem('csrfToken');
-  console.log('csrf', csrfToken);
   return async (dispatch) => {
     return dispatch({
       [RSAA]: {
@@ -285,7 +284,6 @@ export function login(credentials) {
         const jwtToken = response.payload.data.tokenAuth.token;
         const csrfResponse = await dispatch(fetchCsrfToken(jwtToken));
         const csrfToken = csrfResponse?.payload?.data?.getCsrfToken?.csrfToken;
-        console.log('csrf', csrfToken);
         if (csrfToken) {
           localStorage.setItem('csrfToken', csrfToken);
         }
