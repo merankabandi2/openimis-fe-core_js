@@ -237,14 +237,15 @@ export function graphqlMutation(mutation, variables, type = "CORE_TRIGGER_MUTATI
 
 export function fetch(config) {
   const csrfToken = localStorage.getItem('csrfToken');
+  console.log('csrf', csrfToken);
   return async (dispatch) => {
     return dispatch({
       [RSAA]: {
         ...config,
         headers: {
           "Content-Type": "application/json",
-          'X-CSRFToken': csrfToken,
           'X-Requested-With': REQUESTED_WITH,
+          "X-CSRFToken": csrfToken,
           ...config.headers,
         },
       },
@@ -265,15 +266,9 @@ export function login(credentials) {
     if (credentials) {
       const mutation = `mutation authenticate($username: String!, $password: String!) {
             tokenAuth(username: $username, password: $password) {
-              refreshExpiresIn,
-              csrfToken
+              refreshExpiresIn
             }
           }`;
-
-      const csrfToken = getCsrfToken();
-      if (csrfToken) {
-        localStorage.setItem('csrfToken', csrfToken);
-      }
 
       try {
         const response = await dispatch(
@@ -286,10 +281,16 @@ export function login(credentials) {
           dispatch(authError({ message: errorMessage }));
           return { loginStatus: "CORE_AUTH_ERR", message: errorMessage };
         }
-        const csrfToken = response.payload.data.tokenAuth.csrfToken;
+        
+        const jwtToken = response.payload.data.tokenAuth.token;
+        const csrfResponse = await dispatch(fetchCsrfToken(jwtToken));
+        const csrfToken = csrfResponse?.payload?.data?.getCsrfToken?.csrfToken;
+        console.log('csrf', csrfToken);
         if (csrfToken) {
           localStorage.setItem('csrfToken', csrfToken);
         }
+
+
         const action = await dispatch(loadUser());
         return { loginStatus: action.type, message: action?.payload?.response?.detail ?? "" };
       } catch (error) {
@@ -301,6 +302,22 @@ export function login(credentials) {
       const action = await dispatch(loadUser());
       return { loginStatus: action.type, message: action?.payload?.response?.detail ?? "Error occurred while loading user." };
     }
+  };
+}
+
+export function fetchCsrfToken(jwtToken) {
+  return async (dispatch) => {
+    const csrfQuery = `mutation {
+      getCsrfToken {
+        csrfToken
+      }
+    }`;
+
+    return dispatch(
+      graphqlMutation(csrfQuery, {}, ["CORE_AUTH_CSRTOKEN_REQ", "CORE_AUTH_CSRTOKEN_RESP", "CORE_AUTH_ERR"], {}, false, {
+        "Authorization": `JWT ${jwtToken}`,
+      }),
+    );
   };
 }
 
