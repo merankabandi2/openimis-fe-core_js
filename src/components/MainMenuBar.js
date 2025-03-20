@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import * as Icons from "@material-ui/icons";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { useModulesManager } from "../helpers/modules";
@@ -10,12 +11,32 @@ function getMenus(modulesManager, key, rights, menuVariant) {
   
   if (menuConfig?.length) {
     const unmatchedMenus = getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant);
-    const menuToProcess = [...menus, ...unmatchedMenus];
+    let menuToProcess = [...menus, ...unmatchedMenus];
+    menuToProcess = attachIcons(menuToProcess, menuConfig);
     const sortedMenus = sortMenus(menuToProcess, menuConfig);
     return processMenu(sortedMenus);
   }
 
   return processMenu(menus);
+}
+
+function attachIcons(menus, menuConfig) {
+  return menus.map(menu => {
+    const configMatch = menuConfig.find(config => config.id === menu.name);
+
+    if (configMatch?.icon) {
+      const IconComponent = Icons[configMatch.icon] ? Icons[configMatch.icon] : null;
+
+      if (IconComponent) {
+        return {
+          ...menu,
+          component: (props) => <menu.component {...props} icon={<IconComponent />} />
+        };
+      }
+    }
+    
+    return menu;
+  });
 }
 
 function getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVariant) {
@@ -31,6 +52,8 @@ function getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVarian
       if (config.filter && !config.filter(rights)) {
         return null;
       }
+      
+      const IconComponent = config.icon && Icons[config.icon] ? Icons[config.icon] : null;
 
       return {
         name: config.id,
@@ -43,6 +66,7 @@ function getUnmatchedMenus(menuConfig, menus, rights, modulesManager, menuVarian
             rights={rights}
             history={history}
             entries={[]}
+            icon={IconComponent ? <IconComponent /> : null}
           />
         ),
       };
@@ -78,12 +102,13 @@ const MainMenuBar = ({ children = null, contributionKey, reverse = false, menuVa
   const rights = useSelector((state) => state.core?.user?.i_user?.rights || []);
   const components = useMemo(() => {
     const components = getMenus(modulesManager, contributionKey, rights, menuVariant);
+    console.log('components', components);
     if (reverse) {
       components.reverse();
     }
     return components;
   }, [contributionKey, reverse, rights, menuVariant]);
-
+  
   return (
     <>
       {children}

@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import * as Icons from "@material-ui/icons";
 import PropTypes from "prop-types";
 import MuiAccordion from "@material-ui/core/Accordion";
 import MuiAccordionDetails from "@material-ui/core/AccordionDetails";
@@ -174,6 +175,10 @@ class MainMenuContribution extends Component {
     _historyPush(modulesManager, history, route);
   }
 
+  getIconComponent = (iconName) => {
+    return Icons[iconName]
+  };
+
   appBarMenu = (entries) => {
     return (
       <Fragment>
@@ -240,7 +245,7 @@ class MainMenuContribution extends Component {
                     this.redirect(entry.route);
                   }}
                 >
-                  <ListItemIcon>{entry.icon}</ListItemIcon>
+                  {entry.icon && <ListItemIcon>{entry.icon}</ListItemIcon>}
                   <ListItemText primary={entry.text}/>
                 </ListItem>
                 {entry.withDivider && (
