@@ -102,7 +102,6 @@ const MainMenuBar = ({ children = null, contributionKey, reverse = false, menuVa
   const rights = useSelector((state) => state.core?.user?.i_user?.rights || []);
   const components = useMemo(() => {
     const components = getMenus(modulesManager, contributionKey, rights, menuVariant);
-    console.log('components', components);
     if (reverse) {
       components.reverse();
     }
