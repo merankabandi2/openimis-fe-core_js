@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from "react";
+import * as Icons from "@material-ui/icons";
 import PropTypes from "prop-types";
 import MuiAccordion from "@material-ui/core/Accordion";
 import MuiAccordionDetails from "@material-ui/core/AccordionDetails";
@@ -97,10 +98,19 @@ const AccordionDetails = withStyles((theme) => ({
   },
 }))(MuiAccordionDetails);
 
+const getIconComponent = (iconName) => {
+  const IconComponent = Icons[iconName];
+  if (IconComponent) {
+    return <IconComponent />;
+  }
+  return null;
+};
+
 function fetchSubmenuConfig(modulesManager, allEntries, entries, menuId, rights) {
   const menuConfig = modulesManager.getConf("fe-core", "menus", []);
   const isMenuConfigEmpty = !(menuConfig?.length);
   const submenuMapping = {};
+  const menuIcons = {}; 
   const copyOfEntries = entries;
 
   if (!isMenuConfigEmpty) {
@@ -109,14 +119,21 @@ function fetchSubmenuConfig(modulesManager, allEntries, entries, menuId, rights)
       .forEach(menu => {
         (menu.submenus || []).forEach(submenu => {
           submenuMapping[submenu.id] = submenu.position;
+          if (submenu.icon) {
+            menuIcons[submenu.id] = submenu.icon;
+          }
         });
       });
 
     const updatedEntries = allEntries
-      .map(entry => ({
-        ...entry,
-        position: submenuMapping[entry.id] || null,
-      }))
+      .map(entry => {
+        const customIcon = menuIcons[entry.id];
+        return {
+          ...entry,
+          position: submenuMapping[entry.id] || null,
+          icon: customIcon ? getIconComponent(customIcon) : entry.icon,
+        };
+      })
       .filter(entry => entry.position !== null)
       .sort((a, b) => a.position - b.position);
 
@@ -240,7 +257,7 @@ class MainMenuContribution extends Component {
                     this.redirect(entry.route);
                   }}
                 >
-                  <ListItemIcon>{entry.icon}</ListItemIcon>
+                  {entry.icon && <ListItemIcon>{entry.icon}</ListItemIcon>}
                   <ListItemText primary={entry.text}/>
                 </ListItem>
                 {entry.withDivider && (
