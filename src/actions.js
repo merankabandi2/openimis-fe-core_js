@@ -10,6 +10,8 @@ import {
   formatServerError,
 } from "./helpers/api";
 
+const REQUESTED_WITH = 'webapp'
+
 const ROLE_FULL_PROJECTION = () => [
   "id",
   "uuid",
@@ -234,12 +236,15 @@ export function graphqlMutation(mutation, variables, type = "CORE_TRIGGER_MUTATI
 }
 
 export function fetch(config) {
+  const csrfToken = localStorage.getItem('csrfToken');
   return async (dispatch) => {
     return dispatch({
       [RSAA]: {
         ...config,
         headers: {
           "Content-Type": "application/json",
+          'X-Requested-With': REQUESTED_WITH,
+          "X-CSRFToken": csrfToken,
           ...config.headers,
         },
       },
@@ -264,8 +269,6 @@ export function login(credentials) {
             }
           }`;
 
-      const csrfToken = getCsrfToken();
-
       try {
         const response = await dispatch(
           graphqlMutation(mutation, credentials, ["CORE_AUTH_LOGIN_REQ", "CORE_AUTH_LOGIN_RESP", "CORE_AUTH_ERR"], {}, false, {
@@ -277,6 +280,15 @@ export function login(credentials) {
           dispatch(authError({ message: errorMessage }));
           return { loginStatus: "CORE_AUTH_ERR", message: errorMessage };
         }
+        
+        const jwtToken = response.payload.data.tokenAuth.token;
+        const csrfResponse = await dispatch(fetchCsrfToken(jwtToken));
+        const csrfToken = csrfResponse?.payload?.data?.getCsrfToken?.csrfToken;
+        if (csrfToken) {
+          localStorage.setItem('csrfToken', csrfToken);
+        }
+
+
         const action = await dispatch(loadUser());
         return { loginStatus: action.type, message: action?.payload?.response?.detail ?? "" };
       } catch (error) {
@@ -288,6 +300,22 @@ export function login(credentials) {
       const action = await dispatch(loadUser());
       return { loginStatus: action.type, message: action?.payload?.response?.detail ?? "Error occurred while loading user." };
     }
+  };
+}
+
+export function fetchCsrfToken(jwtToken) {
+  return async (dispatch) => {
+    const csrfQuery = `mutation {
+      getCsrfToken {
+        csrfToken
+      }
+    }`;
+
+    return dispatch(
+      graphqlMutation(csrfQuery, {}, ["CORE_AUTH_CSRTOKEN_REQ", "CORE_AUTH_CSRTOKEN_RESP", "CORE_AUTH_ERR"], {}, false, {
+        "Authorization": `JWT ${jwtToken}`,
+      }),
+    );
   };
 }
 
