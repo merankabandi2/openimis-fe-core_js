@@ -362,9 +362,9 @@ const RequireAuth = (props) => {
                 paper: classes.drawerPaper,
               }}
             >
-              <Contributions {...others} contributionKey={MAIN_MENU_CONTRIBUTION_KEY} menuVariant="Drawer">
+              <MainMenuBar {...others} menuVariant="Drawer" contributionKey={MAIN_MENU_CONTRIBUTION_KEY}>
                 <Divider />
-              </Contributions>
+              </MainMenuBar>
             </Drawer>
           </nav>
         </ClickAwayListener>
