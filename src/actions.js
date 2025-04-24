@@ -83,6 +83,10 @@ export function journalize(mutation, meta) {
   };
 }
 
+function isCsrfError(error) {
+  return error?.message?.includes("CSRF token missing or incorrect.");
+}
+
 export function graphql(payload, type = "GRAPHQL_QUERY", params = {}) {
   let req = type + "_REQ";
   let resp = type + "_RESP";
@@ -116,6 +120,18 @@ export function graphql(payload, type = "GRAPHQL_QUERY", params = {}) {
       if (response.error) {
         dispatch(coreAlert(formatServerError(response.payload)));
       }
+
+      const error = response.payload?.errors?.[0];
+      if (error && isCsrfError(error)) {
+        await dispatch(logout());
+
+        requestAnimationFrame(() => {
+          window.location.reload();
+        });
+
+        return;
+      }
+
       return response;
     } catch (err) {
       console.error(err);
