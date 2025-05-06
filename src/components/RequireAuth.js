@@ -256,10 +256,12 @@ const RequireAuth = (props) => {
           <Button className={classes.appName} onClick={(e) => (window.location.href = "/front")}>
             {isAppBarMenu && (
               <Hidden smDown implementation="css">
-                <img className={classes.logo} src={isWorker && !!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
+                <img className={classes.logo} src={!!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
+            {!whiteLogo && (
+              <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
+            )}
             <Hidden smDown implementation="css">
             <Tooltip title={modulesManager.getModulesVersions().join(", ")}>
               <Typography variant="caption" className={classes.appVersions}>
@@ -304,10 +306,10 @@ const RequireAuth = (props) => {
           <Button className={classes.appName} onClick={(e) => history.push("/")}>
             {isAppBarMenu && (
               <Hidden smDown implementation="css">
-                <img className={classes.logo} src={isWorker && !!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
+                <img className={classes.logo} src={!!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            {!isWorker && (
+            {!whiteLogo && (
               <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
             )}
           </Button>
