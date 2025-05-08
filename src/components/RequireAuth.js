@@ -206,7 +206,7 @@ const RequireAuth = (props) => {
   const {
     children,
     logo,
-    whiteLogo,
+    disableTextLogo,
     redirectTo,
     isSecondaryCalendar,
     setSecondaryCalendar,
@@ -256,10 +256,10 @@ const RequireAuth = (props) => {
           <Button className={classes.appName} onClick={(e) => (window.location.href = "/front")}>
             {isAppBarMenu && (
               <Hidden smDown implementation="css">
-                <img className={classes.logo} src={!!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
+                <img className={classes.logo} src={logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            {!whiteLogo && (
+            {!disableTextLogo && (
               <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
             )}
             <Hidden smDown implementation="css">
@@ -306,10 +306,10 @@ const RequireAuth = (props) => {
           <Button className={classes.appName} onClick={(e) => history.push("/")}>
             {isAppBarMenu && (
               <Hidden smDown implementation="css">
-                <img className={classes.logo} src={!!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
+                <img className={classes.logo} src={logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            {!whiteLogo && (
+            {!disableTextLogo && (
               <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
             )}
           </Button>
