@@ -33,6 +33,7 @@ const styles = (theme) => ({
   },
   drawerHeading: {
     fontSize: theme.menu.drawer.fontSize,
+    fontWeight: theme.menu.drawer.fontWeight,
     color: theme.menu.drawer.textColor,
   },
   drawerDivider: {
