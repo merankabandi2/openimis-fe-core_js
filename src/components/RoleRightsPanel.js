@@ -88,7 +88,7 @@ class RoleRightsPanel extends FormPanel {
     const translatedMessage = formatMessage(this.props.intl, null, translationId);
     const translationFound = translatedMessage !== translationId;
     if (!translationFound) {
-      return formatRoleLabel(moduleName, permsName);
+      return formatRoleLabel(moduleName, permsName, true);
     }
     return translatedMessage;
   };
