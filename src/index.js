@@ -33,6 +33,7 @@ import TableServiceReview from "./components/generics/TableServiceReview";
 import SearcherExport from "./components/generics/SearcherExport";
 import Searcher from "./components/generics/Searcher";
 import SearcherPane from "./components/generics/SearcherPane";
+import Filter from "./components/generics/Filter";
 import openIMISDatePicker from "./pickers/DatePicker";
 import Picker from "./components/generics/Picker";
 import ConstantBasedPicker from "./components/generics/ConstantBasedPicker";
@@ -313,6 +314,7 @@ export {
   SearcherExport,
   Searcher,
   SearcherPane,
+  Filter,
   SelectDialog,
   ConstantBasedPicker,
   CustomFilterFieldStatusPicker,
