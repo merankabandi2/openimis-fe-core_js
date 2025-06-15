@@ -295,16 +295,18 @@ class Table extends Component {
                     </Box>
                   )
                 } else {
+                  const cleanedHeaders = localHeaders.filter(Boolean);
                   return (
                     <Box style={{ width: "100%" }}>
                       <table style={{ width: "100%" }}>
                         {(items.length - iidx) == items.length && (
                           <tr>
-                            <TableCell><FormattedMessage module={module} id={localHeaders[0]} /></TableCell>
-                            <TableCell><FormattedMessage module={module} id={localHeaders[1]} /></TableCell>
-                            <TableCell><FormattedMessage module={module} id={localHeaders[2]} /></TableCell>
-                            <TableCell><FormattedMessage module={module} id={localHeaders[3]} /></TableCell>
-                          </tr>
+                          {cleanedHeaders.map((header, index) => (
+                            <TableCell key={index}>
+                              <FormattedMessage module={module} id={header} />
+                            </TableCell>
+                          ))}
+                        </tr>
                         )}
                         <tr>
                           {localItemFormatters &&

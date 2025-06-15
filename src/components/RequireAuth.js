@@ -206,7 +206,7 @@ const RequireAuth = (props) => {
   const {
     children,
     logo,
-    whiteLogo,
+    disableTextLogo,
     redirectTo,
     isSecondaryCalendar,
     setSecondaryCalendar,
@@ -256,10 +256,12 @@ const RequireAuth = (props) => {
           <Button className={classes.appName} onClick={(e) => (window.location.href = "/front")}>
             {isAppBarMenu && (
               <Hidden smDown implementation="css">
-                <img className={classes.logo} src={isWorker && !!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
+                <img className={classes.logo} src={logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
+            {!disableTextLogo && (
+              <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
+            )}
             <Hidden smDown implementation="css">
             <Tooltip title={modulesManager.getModulesVersions().join(", ")}>
               <Typography variant="caption" className={classes.appVersions}>
@@ -304,10 +306,10 @@ const RequireAuth = (props) => {
           <Button className={classes.appName} onClick={(e) => history.push("/")}>
             {isAppBarMenu && (
               <Hidden smDown implementation="css">
-                <img className={classes.logo} src={isWorker && !!whiteLogo ? whiteLogo : logo} alt="Logo of openIMIS" />
+                <img className={classes.logo} src={logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            {!isWorker && (
+            {!disableTextLogo && (
               <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
             )}
           </Button>
@@ -362,9 +364,9 @@ const RequireAuth = (props) => {
                 paper: classes.drawerPaper,
               }}
             >
-              <Contributions {...others} contributionKey={MAIN_MENU_CONTRIBUTION_KEY} menuVariant="Drawer">
+              <MainMenuBar {...others} menuVariant="Drawer" contributionKey={MAIN_MENU_CONTRIBUTION_KEY}>
                 <Divider />
-              </Contributions>
+              </MainMenuBar>
             </Drawer>
           </nav>
         </ClickAwayListener>

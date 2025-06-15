@@ -323,6 +323,12 @@ class Searcher extends Component {
     this.setState({ filters });
   };
 
+  _notifyFiltersApplied = () => {
+    if (this.props.onFiltersApplied) {
+      this.props.onFiltersApplied(this.state.filters);
+    }
+  };
+
   _cacheAndApply = () => {
     var filters = this.filtersToQueryParams();
     if (!!this.props.cacheFiltersKey) {
@@ -332,6 +338,8 @@ class Searcher extends Component {
     } else {
       this.props.fetch(filters);
     }
+
+    this._notifyFiltersApplied();
   };
 
   applyFilters = () => {
@@ -444,6 +452,27 @@ class Searcher extends Component {
     return [];
   };
 
+  renderSearcherActions = () => {
+    const { searcherActions, classes } = this.props;
+
+    return searcherActions.map((action, idx) =>
+      action.authorized && (
+        <Grid item key={`searcher-action-${idx}`}>
+          <Button
+            key={action.label}
+            onClick={action.onClick}
+            startIcon={action.icon}
+            variant="contained"
+            color="primary"
+            className={classes.actionButton}
+          >
+            <Typography variant="body2">{action.label}</Typography>
+          </Button>
+        </Grid>
+      )
+    );
+  };
+
   render() {
     const {
       classes,
@@ -506,6 +535,7 @@ class Searcher extends Component {
       downloadWithIconButton = false,
       displayClearAllColsButton,
       infoButtonContent = '',
+      searcherActionsPosition = 'top-right',
     } = this.props;
     return (
       <Fragment>
@@ -539,23 +569,9 @@ class Searcher extends Component {
         )}
         {!!contributionKey && <Contributions contributionKey={contributionKey} />}
         <Paper className={classes.paper}>
-          {enableActionButtons && !!searcherActions.length && (
+          {enableActionButtons && searcherActionsPosition !== "header-right" && (
             <Grid container justifyContent="flex-end" className={classes.searcherActions}>
-              {searcherActions.map((action) => {
-                if (!action.authorized) return null;
-
-                return (
-                  <Button
-                    key={action.label}
-                    onClick={action.onClick}
-                    startIcon={action.icon}
-                    variant="contained"
-                    color="primary"
-                  >
-                    <Typography variant="body2"> {action.label} </Typography>
-                  </Button>
-                );
-              })}
+              {this.renderSearcherActions()}
             </Grid>
           )}
           <Grid container className={classes.tableContainer}>
@@ -583,34 +599,37 @@ class Searcher extends Component {
                 <Grid container alignItems="center" item xs={this.isWorker ? 5 : 4} className={classes.paperHeader}>
                   {fetchedItems && (
                     <Grid container direction="row" justify="flex-end" className={classes.paperHeaderAction}>
-                      <StyledSelectionMenu
-                        selectWithCheckbox={selectWithCheckbox}
-                        refetch={this.applyFilters}
-                        withSelection={withSelection}
-                        canSelectAll={canSelectAll}
-                        selection={this.state.selection}
-                        items={items}
-                        clearSelected={this.clearSelected}
-                        selectAll={this.selectAll}
-                        triggerAction={this.triggerAction}
-                        actions={actions}
-                        processing={processing}
-                        actionsContributionKey={actionsContributionKey}
-                        filters={this.state.filters}
-                        exportable={exportable}
-                        exportFetch={exportFetch}
-                        exportFields={exportFields}
-                        exportFieldsColumns={exportFieldsColumns}
-                        exportFieldLabel={exportFieldLabel}
-                        chooseExportableColumns={chooseExportableColumns}
-                        additionalExportFields={additionalExportFields}
-                        chooseFileFormat={chooseFileFormat}
-                        exportFileFormats={exportFileFormats}
-                        exportFileFormat={exportFileFormat}
-                        setExportFileFormat={setExportFileFormat}
-                        downloadWithIconButton={downloadWithIconButton}
-                        displayClearAllColsButton={displayClearAllColsButton}
-                      />
+                      {searcherActionsPosition === "header-right" && this.renderSearcherActions()}
+                      <Grid item>
+                        <StyledSelectionMenu
+                          selectWithCheckbox={selectWithCheckbox}
+                          refetch={this.applyFilters}
+                          withSelection={withSelection}
+                          canSelectAll={canSelectAll}
+                          selection={this.state.selection}
+                          items={items}
+                          clearSelected={this.clearSelected}
+                          selectAll={this.selectAll}
+                          triggerAction={this.triggerAction}
+                          actions={actions}
+                          processing={processing}
+                          actionsContributionKey={actionsContributionKey}
+                          filters={this.state.filters}
+                          exportable={exportable}
+                          exportFetch={exportFetch}
+                          exportFields={exportFields}
+                          exportFieldsColumns={exportFieldsColumns}
+                          exportFieldLabel={exportFieldLabel}
+                          chooseExportableColumns={chooseExportableColumns}
+                          additionalExportFields={additionalExportFields}
+                          chooseFileFormat={chooseFileFormat}
+                          exportFileFormats={exportFileFormats}
+                          exportFileFormat={exportFileFormat}
+                          setExportFileFormat={setExportFileFormat}
+                          downloadWithIconButton={downloadWithIconButton}
+                          displayClearAllColsButton={displayClearAllColsButton}
+                        />
+                      </Grid>
                     </Grid>
                   )}
                 </Grid>
