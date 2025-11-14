@@ -45,8 +45,8 @@ const useStyles = makeStyles((theme) => ({
   },
   logo: {
     verticalAlign: "middle",
-    margin: theme.typography.title.fontSize / 2,
-    maxHeight: theme.typography.title.fontSize * 2,
+    margin: 0,
+    maxHeight: theme.typography.title.fontSize * 3,
   },
   appBar: {
     paddingRight: theme.jrnlDrawer.close.width,
@@ -130,6 +130,14 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.main,
     textTransform: "none",
     fontSize: theme.typography.title.fontSize,
+  },
+  appNameCenter: {
+    color: "#fff",
+    textTransform: "none",
+    marginLeft: theme.spacing(40),
+    fontSize: theme.typography.h1.fontSize,
+    alignItems: "center",
+    justifyContent: "center",
   },
   appVersionsBox: {
     padding: 0,
@@ -241,6 +249,8 @@ const RequireAuth = (props) => {
           <Contributions {...others} contributionKey={APP_BAR_CONTRIBUTION_KEY}>
             <div className={classes.grow} />
           </Contributions>
+          <h1 className={classes.appNameCenter}>MIS MERANKABANDI</h1>
+          <div className={classes.grow} />
           <LogoutButton className={classes.toolbarDrawerLogout}/>
           <Help />
         </Toolbar>
@@ -259,15 +269,7 @@ const RequireAuth = (props) => {
                 <img className={classes.logo} src={logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            {!disableTextLogo && (
-              <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
-            )}
             <Hidden smDown implementation="css">
-            <Tooltip title={modulesManager.getModulesVersions().join(", ")}>
-              <Typography variant="caption" className={classes.appVersions}>
-                {modulesManager.getOpenIMISVersion()}
-              </Typography>
-            </Tooltip>
           </Hidden>
           </Button>
             <div className={classes.drawerContainer}></div>
