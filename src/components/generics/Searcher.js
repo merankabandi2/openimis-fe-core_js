@@ -453,6 +453,68 @@ class Searcher extends Component {
     return [];
   };
 
+  _mergeHeaders = (headers, filters) => {
+    const baseHeaders = headers(filters);
+    const { columnsContributionKey, modulesManager } = this.props;
+    if (!columnsContributionKey) return baseHeaders;
+    const contributions = modulesManager.getContribs(columnsContributionKey) || [];
+    if (!contributions.length) return baseHeaders;
+    const contributedHeaders = contributions.map((c) => c.header);
+    // Insert contributed headers before the last action columns (those with value 'emptyLabel')
+    const lastNonActionIdx = baseHeaders.reduce(
+      (last, h, idx) => (h !== 'emptyLabel' ? idx : last), -1
+    );
+    const insertAt = lastNonActionIdx + 1;
+    return [
+      ...baseHeaders.slice(0, insertAt),
+      ...contributedHeaders,
+      ...baseHeaders.slice(insertAt),
+    ];
+  };
+
+  _mergeItemFormatters = (itemFormatters, filters) => {
+    const baseFormatters = itemFormatters(filters);
+    const { columnsContributionKey, modulesManager } = this.props;
+    if (!columnsContributionKey) return baseFormatters;
+    const contributions = modulesManager.getContribs(columnsContributionKey) || [];
+    if (!contributions.length) return baseFormatters;
+    const contributedFormatters = contributions.map((c) => c.formatter);
+    // Count 'emptyLabel' headers to determine how many action columns are at the end
+    const headers = this.props.headers(filters);
+    let actionCount = 0;
+    for (let i = headers.length - 1; i >= 0; i--) {
+      if (headers[i] === 'emptyLabel') actionCount++;
+      else break;
+    }
+    const insertAt = baseFormatters.length - actionCount;
+    return [
+      ...baseFormatters.slice(0, insertAt),
+      ...contributedFormatters,
+      ...baseFormatters.slice(insertAt),
+    ];
+  };
+
+  _mergeHeaderActions = (baseActions, filters) => {
+    const { columnsContributionKey, modulesManager } = this.props;
+    if (!columnsContributionKey) return baseActions;
+    const contributions = modulesManager.getContribs(columnsContributionKey) || [];
+    if (!contributions.length) return baseActions;
+    // Add null sort actions for contributed columns (not sortable by default)
+    const contributedActions = contributions.map(() => [null, () => null]);
+    const headers = this.props.headers(filters);
+    let actionCount = 0;
+    for (let i = headers.length - 1; i >= 0; i--) {
+      if (headers[i] === 'emptyLabel') actionCount++;
+      else break;
+    }
+    const insertAt = baseActions.length - actionCount;
+    return [
+      ...baseActions.slice(0, insertAt),
+      ...contributedActions,
+      ...baseActions.slice(insertAt),
+    ];
+  };
+
   renderSearcherActions = () => {
     const { searcherActions, classes } = this.props;
 
@@ -480,6 +542,7 @@ class Searcher extends Component {
       module,
       canSelectAll = null,
       contributionKey = null,
+      columnsContributionKey = null,
       FilterPane,
       FilterExt,
       filterPaneContributionsKey = null,
@@ -643,10 +706,10 @@ class Searcher extends Component {
                     selectWithCheckbox={selectWithCheckbox}
                     fetching={fetchingItems}
                     preHeaders={!!preHeaders && preHeaders(this.state.selection)}
-                    headers={headers(this.state.filters)}
-                    headerActions={this.headerActions(this.state.filters)}
+                    headers={this._mergeHeaders(headers, this.state.filters)}
+                    headerActions={this._mergeHeaderActions(this.headerActions(this.state.filters), this.state.filters)}
                     aligns={!!aligns && aligns()}
-                    itemFormatters={itemFormatters(this.state.filters)}
+                    itemFormatters={this._mergeItemFormatters(itemFormatters, this.state.filters)}
                     rowLocked={(i) => rowLocked(this.state.selection, i)}
                     rowHighlighted={(i) => rowHighlighted(this.state.selection, i)}
                     rowHighlightedAlt={(i) => rowHighlightedAlt(this.state.selection, i)}

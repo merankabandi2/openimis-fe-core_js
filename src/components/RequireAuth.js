@@ -45,8 +45,8 @@ const useStyles = makeStyles((theme) => ({
   },
   logo: {
     verticalAlign: "middle",
-    margin: theme.typography.title.fontSize / 2,
-    maxHeight: theme.typography.title.fontSize * 2,
+    margin: 0,
+    maxHeight: theme.typography.title.fontSize * 3,
   },
   appBar: {
     paddingRight: theme.jrnlDrawer.close.width,
