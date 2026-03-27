@@ -181,34 +181,40 @@ const App = (props) => {
                         )}
                       />
                     ))}
-                    {routes.map((route) => (
-                      <Route
-                        exact
-                        key={route.path}
-                        path={"/" + route.path}
-                        render={(props) => (
-                          <ErrorBoundary>
-                            <RequireAuth
-                              {...props}
-                              {...others}
-                              redirectTo={"/login"}
-                              onEconomicDialogOpen={() => setEconomicUnitDialogOpen(true)}
-                              isSecondaryCalendar={isSecondaryCalendar}
-                              setSecondaryCalendar={setSecondaryCalendar}
-                            >
-                              <PermissionCheck
-                                modulesManager={modulesManager}
-                                userRights={rights}
-                                requiredRights={route.requiredRights}
+                    {routes.map((route) => {
+                      const RouteComponent = typeof route.component === 'string'
+                        ? modulesManager.getRef(route.component)
+                        : route.component;
+                      if (!RouteComponent) return null;
+                      return (
+                        <Route
+                          exact
+                          key={route.path}
+                          path={"/" + route.path}
+                          render={(props) => (
+                            <ErrorBoundary>
+                              <RequireAuth
+                                {...props}
                                 {...others}
+                                redirectTo={"/login"}
+                                onEconomicDialogOpen={() => setEconomicUnitDialogOpen(true)}
+                                isSecondaryCalendar={isSecondaryCalendar}
+                                setSecondaryCalendar={setSecondaryCalendar}
                               >
-                                <route.component modulesManager={modulesManager} {...props} {...others} />
-                              </PermissionCheck>
-                            </RequireAuth>
-                          </ErrorBoundary>
-                        )}
-                      />
-                    ))}
+                                <PermissionCheck
+                                  modulesManager={modulesManager}
+                                  userRights={rights}
+                                  requiredRights={route.requiredRights}
+                                  {...others}
+                                >
+                                  <RouteComponent modulesManager={modulesManager} {...props} {...others} />
+                                </PermissionCheck>
+                              </RequireAuth>
+                            </ErrorBoundary>
+                          )}
+                        />
+                      );
+                    })}
                     <Route render={() => <NotFoundPage {...others} />} />
                   </Switch>
                 </BrowserRouter>
