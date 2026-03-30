@@ -51,6 +51,7 @@ class Form extends Component {
 
   render() {
     const {
+      enableSaveButton = true,
       classes,
       module,
       back,
@@ -91,13 +92,15 @@ class Form extends Component {
         condition: (!!this.state.dirty || !!openDirty) && !!save,
         content: (
           <span>
-            <Fab
-              color="primary"
-              disabled={!!this.state.saving || (!!canSave && !canSave())}
-              onClick={(e) => this.save(this.props.edited)}
-            >
-              <SaveIcon />
+            {enableSaveButton && (
+              <Fab
+                color="primary"
+                disabled={!!this.state.saving || (!!canSave && !canSave())}
+                onClick={(e) => this.save(this.props.edited)}
+              >
+                <SaveIcon />
             </Fab>
+            )}
           </span>
         ),
         tooltip: saveTooltip || formatMessage(this.props.intl, module, "saveTooltip"),

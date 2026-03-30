@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { IntlProvider } from "react-intl";
 import { Route, BrowserRouter, Switch } from "react-router-dom";
 import { CssBaseline } from "@material-ui/core";
@@ -51,6 +51,7 @@ const App = (props) => {
     classes,
     error,
     confirm,
+    confirmed,
     user,
     messages,
     clearConfirm,
@@ -61,11 +62,13 @@ const App = (props) => {
     rights,
     ...others
   } = props;
+  const dispatch = useDispatch();
 
   const economicUnitConfig = modulesManager.getConf("fe-core", "App.economicUnitConfig", false);
 
   const [economicUnitDialogOpen, setEconomicUnitDialogOpen] = useState(false);
   const [isSecondaryCalendar, setSecondaryCalendar] = useBoolean(true);
+  const [lastConfirmIntent, setLastConfirmIntent] = useState(null);
 
   const auth = useAuthentication();
   const routes = useMemo(() => {
@@ -128,6 +131,21 @@ const App = (props) => {
     localStorage.setItem("isSecondaryCalendarEnabled", JSON.stringify(!isSecondaryCalendar));
     toggleCurrentCalendarType(!isSecondaryCalendar);
   }, [isSecondaryCalendar]);
+
+  useEffect(() => {
+    if (confirm?.intent) {
+      setLastConfirmIntent(confirm.intent);
+    }
+  }, [confirm]);
+
+  useEffect(() => {
+    const handleConfirm = async () => {
+      if (confirmed === true && lastConfirmIntent === "csrf_logout") {
+        await onLogout(dispatch);
+      }
+    };
+    handleConfirm();
+  }, [confirmed, lastConfirmIntent, dispatch]);
 
   if (error) {
     return (
@@ -232,6 +250,7 @@ const mapStateToProps = (state) => ({
   user: state.core.user?.i_user,
   error: state.core.error,
   confirm: state.core.confirm,
+  confirmed: state.core.confirmed,
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({ clearConfirm, toggleCurrentCalendarType }, dispatch);
