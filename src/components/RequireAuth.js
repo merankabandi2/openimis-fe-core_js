@@ -131,6 +131,17 @@ const useStyles = makeStyles((theme) => ({
     textTransform: "none",
     fontSize: theme.typography.title.fontSize,
   },
+  appNameCenter: {
+    color: "#fff",
+    textTransform: "none",
+    fontSize: theme.typography.h1.fontSize,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    pointerEvents: "none",
+    margin: 0,
+  },
   appVersionsBox: {
     padding: 0,
     margin: 0,
@@ -219,9 +230,7 @@ const RequireAuth = (props) => {
   const history = useHistory();
   const modulesManager = useModulesManager();
   const auth = useAuthentication();
-  // TODO: deprecate openimis-fe-core_js as a module config key
-  const menuLeft = modulesManager.getConf("openimis-fe-core_js", "menuLeft")
-    || modulesManager.getConf("fe-core", "menuLeft") || false;
+  const cfg = children.props.modulesManager.cfg;
   const calendarSwitch = modulesManager.getConf(
     "fe-core",
     "allowSecondCalendar",
@@ -235,15 +244,14 @@ const RequireAuth = (props) => {
   if (!auth.isAuthenticated) {
     return <Redirect to={redirectTo} />;
   }
-
-  if (menuLeft) {
+  if (cfg['openimis-fe-core_js']?.menuLeft === true) {
     return (
     <>
       <AppBar position="fixed" className={classes.appBarDrawer}>
         <Toolbar className={classes.toolbarDrawer}>
-          <Contributions {...others} contributionKey={APP_BAR_CONTRIBUTION_KEY}>
-            <div className={classes.grow} />
-          </Contributions>
+          <h1 className={classes.appNameCenter}>MIS MERANKABANDI</h1>
+          <div className={classes.grow} />
+          <Contributions {...others} contributionKey={APP_BAR_CONTRIBUTION_KEY} />
           <LogoutButton className={classes.toolbarDrawerLogout}/>
           <Help />
         </Toolbar>
@@ -262,15 +270,7 @@ const RequireAuth = (props) => {
                 <img className={classes.logo} src={logo} alt="Logo of openIMIS" />
               </Hidden>
             )}
-            {!disableTextLogo && (
-              <FormattedMessage module="core" id="appName" defaultMessage={<FormattedMessage id="root.appName" />} />
-            )}
             <Hidden smDown implementation="css">
-            <Tooltip title={modulesManager.getModulesVersions().join(", ")}>
-              <Typography variant="caption" className={classes.appVersions}>
-                {modulesManager.getOpenIMISVersion()}
-              </Typography>
-            </Tooltip>
           </Hidden>
           </Button>
             <div className={classes.drawerContainer}></div>
@@ -279,7 +279,7 @@ const RequireAuth = (props) => {
               </MainMenuBar>
             <div/>
             </Drawer>  
-          <JournalDrawer open={isDrawerOpen} handleDrawer={setDrawerOpen.toggle} />
+            {showJournalSidebar && <JournalDrawer open={isDrawerOpen} handleDrawer={setDrawerOpen.toggle} />}
       <main
         className={classes.contentShiftLeftSideMenu}
       >
