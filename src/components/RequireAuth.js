@@ -245,11 +245,12 @@ const RequireAuth = (props) => {
     return <Redirect to={redirectTo} />;
   }
   if (cfg['openimis-fe-core_js']?.menuLeft === true) {
+    const { formatMessage } = useTranslations(module, modulesManager);
     return (
     <>
       <AppBar position="fixed" className={classes.appBarDrawer}>
         <Toolbar className={classes.toolbarDrawer}>
-          <h1 className={classes.appNameCenter}>MIS MERANKABANDI</h1>
+          <h1 className={classes.appNameCenter}>{formatMessage("appName")}</h1>
           <div className={classes.grow} />
           <Contributions {...others} contributionKey={APP_BAR_CONTRIBUTION_KEY} />
           <LogoutButton className={classes.toolbarDrawerLogout}/>
@@ -288,7 +289,7 @@ const RequireAuth = (props) => {
     </>
     )
   }
-  const { formatMessage } = useTranslations(module, modulesManager);
+
   return (
     <>
       <AppBar

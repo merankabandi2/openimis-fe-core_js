@@ -72,7 +72,12 @@ const App = (props) => {
 
   const auth = useAuthentication();
   const routes = useMemo(() => {
-    return modulesManager.getContribs(ROUTER_CONTRIBUTION_KEY);
+    // Deduplicate routes by path — last module to register a path wins.
+    // This allows downstream modules to override upstream page components.
+    const allRoutes = modulesManager.getContribs(ROUTER_CONTRIBUTION_KEY);
+    const routeMap = new Map();
+    allRoutes.forEach((route) => routeMap.set(route.path, route));
+    return Array.from(routeMap.values());
   }, []);
 
   const unauthenticatedRoutes = useMemo(() => {
