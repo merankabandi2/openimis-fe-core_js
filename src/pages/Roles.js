@@ -185,6 +185,13 @@ class Roles extends Component {
 
   roleDuplicatePageUrl = (role) => `${this.roleUpdatePageUrl(role)}?${QUERY_STRING_DUPLICATE}`;
 
+  onUpdate = (role) => historyPush(this.props.modulesManager, this.props.history, "core.route.role", [role.uuid]);
+
+  onDuplicate = (role) =>
+    historyPush(this.props.modulesManager, this.props.history, "core.route.role", [
+      `${role.uuid}?${QUERY_STRING_DUPLICATE}`,
+    ]);
+
   onDoubleClick = (role, newTab = false) => {
     const { rights, modulesManager, history } = this.props;
     if (rights.includes(RIGHT_ROLE_SEARCH) || rights.includes(RIGHT_ROLE_UPDATE)) {
