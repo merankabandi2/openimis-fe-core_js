@@ -12,15 +12,17 @@ export const normalizeErrorMessage = (message) =>
 export const isSessionError = (gqlErrors = []) =>
   gqlErrors.some((error) => normalizeErrorMessage(error?.message) === "csrftoken");
 
-// The backend raises "unauthorized" (English: "User not authorized for this
-// operation") both for an anonymous request (JWT cookie gone) and for a
-// missing right; "Signature has expired" comes from a JWT cookie past its
-// expiry. The message cannot tell them apart, so the current-user endpoint
-// decides whether the session is still valid.
+// The backend raises "unauthorized" (translated per request locale) both for
+// an anonymous request (JWT cookie gone) and for a missing right; "Signature
+// has expired" comes from a JWT cookie past its expiry. The message cannot
+// tell them apart, so the current-user endpoint decides whether the session
+// is still valid.
 const SESSION_CHECK_MESSAGES = new Set([
   "unauthorized",
   "user not authorized for this operation",
+  "utilisateur non autorisé pour cette opération",
   "signature has expired",
+  "la signature a expiré",
 ]);
 
 export const needsSessionCheck = (gqlErrors = []) =>

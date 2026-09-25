@@ -21,7 +21,9 @@ test("an authorization refusal needs a session check: anonymous and missing righ
   assert.equal(needsSessionCheck([{ message: "unauthorized" }]), true);
   assert.equal(needsSessionCheck([{ message: "Unauthorized" }]), true);
   assert.equal(needsSessionCheck([{ message: "User not authorized for this operation" }]), true);
+  assert.equal(needsSessionCheck([{ message: "Utilisateur non autorisé pour cette opération" }]), true);
   assert.equal(needsSessionCheck([{ message: "Signature has expired" }]), true);
+  assert.equal(needsSessionCheck([{ message: "La signature a expiré" }]), true);
   assert.equal(needsSessionCheck([{ message: "other" }, { message: "unauthorized" }]), true);
 });
 
