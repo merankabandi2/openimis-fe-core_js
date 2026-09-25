@@ -9,6 +9,7 @@ import {
   formatMutation,
   formatServerError,
 } from "./helpers/api";
+import { isSessionError } from "./helpers/session";
 
 const REQUESTED_WITH = 'webapp'
 
@@ -329,13 +330,7 @@ export function fetch(config) {
         });
       }
 
-      const norm = (m) => String(m || "").toLowerCase().replace(/['"]/g, "").trim();
-      const csrfError = gqlErrors.some((e) => {
-        const msg = norm(e?.message);
-        return msg === "csrftoken" 
-        || msg === "user not authorized for this operation" 
-        || msg === "unauthorized";
-      });
+      const csrfError = isSessionError(gqlErrors);
 
       if (csrfError) {
         dispatch(
