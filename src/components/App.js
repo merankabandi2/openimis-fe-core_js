@@ -27,6 +27,7 @@ import PublicPageMiddleware from "./PublicPageMiddleware";
 import { ToastProvider } from "../helpers/ToastContext";
 import { PublicPageLanguageProvider } from "../helpers/PublicPageLanguageContext";
 import { getCookie } from "../helpers/cookies";
+import { nextConfirmIntent, isLogoutConfirmed } from "../helpers/confirm";
 
 export const ROUTER_CONTRIBUTION_KEY = "core.Router";
 export const UNAUTHENTICATED_ROUTER_CONTRIBUTION_KEY = "core.UnauthenticatedRouter";
@@ -138,14 +139,12 @@ const App = (props) => {
   }, [isSecondaryCalendar]);
 
   useEffect(() => {
-    if (confirm?.intent) {
-      setLastConfirmIntent(confirm.intent);
-    }
+    setLastConfirmIntent((previousIntent) => nextConfirmIntent(previousIntent, confirm));
   }, [confirm]);
 
   useEffect(() => {
     const handleConfirm = async () => {
-      if (confirmed === true && lastConfirmIntent === "csrf_logout") {
+      if (isLogoutConfirmed(confirmed, lastConfirmIntent)) {
         await onLogout(dispatch);
       }
     };
