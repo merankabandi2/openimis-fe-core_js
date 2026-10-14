@@ -100,8 +100,11 @@ export function formatMutation(operationName, input, clientMutationLabel, client
   return { clientMutationId, payload };
 }
 
+const RAW_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// A numeric id or a dashed UUID is already decoded; anything else is a relay id.
 export function decodeId(id) {
-  if (/^\d+$/.test(id)) return id;
+  if (/^\d+$/.test(id) || RAW_UUID.test(id)) return id;
   else return atob(id).split(":")[1];
 }
 
